@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+        <!-- Client Action that launches the OWL KPI Dashboard -->
+        <record id="action_zkteco_kpi_dashboard" model="ir.actions.client">
+            <field name="name">KPI Dashboard</field>
+            <field name="tag">zkteco_kpi_dashboard</field>
+        </record>
+
+        <!-- Top-level KPI Dashboard menu entry -->
+        <menuitem id="menu_zkteco_kpi_dashboard"
+                  name="KPI Dashboard"
+                  parent="menu_zkteco_root"
+                  action="action_zkteco_kpi_dashboard"
+                  sequence="5"
+                  groups="zkteco_attendance.group_zkteco_user"/>
+</odoo>

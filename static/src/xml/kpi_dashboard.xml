@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates xml:space="preserve">
+<t t-name="zkteco_attendance.KPIDashboard">
+    <div class="zk_kpi_dashboard">
+
+        <!-- Loading Overlay -->
+        <div t-if="state.loading" class="zk_loading_overlay">
+            <div class="zk_spinner"/>
+            <p class="zk_loading_text">Loading attendance data…</p>
+        </div>
+
+        <!-- Main Dashboard -->
+        <div t-else="" class="zk_dashboard_inner">
+
+            <!-- Header Bar -->
+            <div class="zk_header">
+                <div class="zk_header_left">
+                    <div class="zk_header_icon"><i class="fa fa-fingerprint"/></div>
+                    <div>
+                        <h1 class="zk_title">Attendance KPI Dashboard</h1>
+                        <p class="zk_subtitle"><i class="fa fa-calendar-o me-1"/><t t-esc="state.today"/></p>
+                    </div>
+                </div>
+                <div class="zk_header_right">
+                    <div class="zk_device_pill" t-att-class="state.onlineDevices > 0 ? 'zk_pill_online' : 'zk_pill_offline'">
+                        <span class="zk_pulse_dot"/>
+                        <span><t t-esc="state.onlineDevices"/>/<t t-esc="state.totalDevices"/> Devices Online</span>
+                    </div>
+                    <button class="zk_refresh_btn" t-on-click="refresh">
+                        <i class="fa fa-refresh"/> Refresh
+                    </button>
+                </div>
+            </div>
+
+            <!-- KPI Ring Row -->
+            <div class="zk_kpi_row">
+                <!-- Attendance Rate Ring -->
+                <div class="zk_ring_card">
+                    <div class="zk_ring_wrap">
+                        <svg viewBox="0 0 100 100" class="zk_ring_svg">
+                            <circle cx="50" cy="50" r="42" class="zk_ring_bg"/>
+                            <circle cx="50" cy="50" r="42" class="zk_ring_fg zk_ring_green"
+                                t-att-style="'stroke-dasharray: ' + (state.attendanceRateToday * 2.638) + ' 263.8'"/>
+                        </svg>
+                        <div class="zk_ring_label">
+                            <span class="zk_ring_value" t-esc="state.attendanceRateToday + '%'"/>
+                            <span class="zk_ring_sub">Attendance</span>
+                        </div>
+                    </div>
+                    <p class="zk_ring_title">Today's Rate</p>
+                </div>
+
+                <!-- Punctuality Ring -->
+                <div class="zk_ring_card">
+                    <div class="zk_ring_wrap">
+                        <svg viewBox="0 0 100 100" class="zk_ring_svg">
+                            <circle cx="50" cy="50" r="42" class="zk_ring_bg"/>
+                            <circle cx="50" cy="50" r="42" class="zk_ring_fg zk_ring_blue"
+                                t-att-style="'stroke-dasharray: ' + (state.punctualityRate * 2.638) + ' 263.8'"/>
+                        </svg>
+                        <div class="zk_ring_label">
+                            <span class="zk_ring_value" t-esc="state.punctualityRate + '%'"/>
+                            <span class="zk_ring_sub">Punctuality</span>
+                        </div>
+                    </div>
+                    <p class="zk_ring_title">On-Time Rate</p>
+                </div>
+
+                <!-- Overtime -->
+                <div class="zk_ring_card">
+                    <div class="zk_ring_wrap">
+                        <svg viewBox="0 0 100 100" class="zk_ring_svg">
+                            <circle cx="50" cy="50" r="42" class="zk_ring_bg"/>
+                            <circle cx="50" cy="50" r="42" class="zk_ring_fg zk_ring_orange"
+                                t-att-style="'stroke-dasharray: ' + Math.min(state.overtimeToday * 13.19, 263.8) + ' 263.8'"/>
+                        </svg>
+                        <div class="zk_ring_label">
+                            <span class="zk_ring_value" t-esc="state.overtimeToday + 'h'"/>
+                            <span class="zk_ring_sub">Overtime</span>
+                        </div>
+                    </div>
+                    <p class="zk_ring_title">Today's OT</p>
+                </div>
+
+                <!-- Total Employees -->
+                <div class="zk_ring_card">
+                    <div class="zk_ring_wrap">
+                        <svg viewBox="0 0 100 100" class="zk_ring_svg">
+                            <circle cx="50" cy="50" r="42" class="zk_ring_bg"/>
+                            <circle cx="50" cy="50" r="42" class="zk_ring_fg zk_ring_purple"
+                                t-att-style="'stroke-dasharray: ' + Math.min((state.presentToday / Math.max(state.totalEmployees,1)) * 263.8, 263.8) + ' 263.8'"/>
+                        </svg>
+                        <div class="zk_ring_label">
+                            <span class="zk_ring_value" t-esc="state.totalEmployees"/>
+                            <span class="zk_ring_sub">Total</span>
+                        </div>
+                    </div>
+                    <p class="zk_ring_title">Employees</p>
+                </div>
+            </div>
+
+            <!-- Status KPI Cards -->
+            <div class="zk_cards_row">
+                <!-- Present -->
+                <div class="zk_kpi_card zk_card_green" t-on-click="viewPresent">
+                    <div class="zk_card_icon"><i class="fa fa-user-check"/></div>
+                    <div class="zk_card_body">
+                        <div class="zk_card_value" t-esc="state.presentToday"/>
+                        <div class="zk_card_label">Present Today</div>
+                    </div>
+                    <div class="zk_card_arrow"><i class="fa fa-arrow-right"/></div>
+                </div>
+
+                <!-- Absent -->
+                <div class="zk_kpi_card zk_card_red" t-on-click="viewAbsent">
+                    <div class="zk_card_icon"><i class="fa fa-user-times"/></div>
+                    <div class="zk_card_body">
+                        <div class="zk_card_value" t-esc="state.absentToday"/>
+                        <div class="zk_card_label">Absent Today</div>
+                    </div>
+                    <div class="zk_card_arrow"><i class="fa fa-arrow-right"/></div>
+                </div>
+
+                <!-- On Leave -->
+                <div class="zk_kpi_card zk_card_blue" t-on-click="viewOnLeave">
+                    <div class="zk_card_icon"><i class="fa fa-calendar-check-o"/></div>
+                    <div class="zk_card_body">
+                        <div class="zk_card_value" t-esc="state.onLeaveToday"/>
+                        <div class="zk_card_label">On Leave</div>
+                    </div>
+                    <div class="zk_card_arrow"><i class="fa fa-arrow-right"/></div>
+                </div>
+
+                <!-- Missed Punch -->
+                <div class="zk_kpi_card zk_card_orange" t-on-click="viewMissedPunch">
+                    <div class="zk_card_icon"><i class="fa fa-exclamation-triangle"/></div>
+                    <div class="zk_card_body">
+                        <div class="zk_card_value" t-esc="state.missedPunchToday"/>
+                        <div class="zk_card_label">Missed Punch</div>
+                    </div>
+                    <div class="zk_card_arrow"><i class="fa fa-arrow-right"/></div>
+                </div>
+
+                <!-- Late Arrivals -->
+                <div class="zk_kpi_card zk_card_yellow" t-on-click="viewLate">
+                    <div class="zk_card_icon"><i class="fa fa-clock-o"/></div>
+                    <div class="zk_card_body">
+                        <div class="zk_card_value" t-esc="state.lateArrivalsToday"/>
+                        <div class="zk_card_label">Late Arrivals</div>
+                    </div>
+                    <div class="zk_card_arrow"><i class="fa fa-arrow-right"/></div>
+                </div>
+
+                <!-- Early Departures -->
+                <div class="zk_kpi_card zk_card_gray" t-on-click="viewEarlyLeave">
+                    <div class="zk_card_icon"><i class="fa fa-sign-out"/></div>
+                    <div class="zk_card_body">
+                        <div class="zk_card_value" t-esc="state.earlyLeavesToday"/>
+                        <div class="zk_card_label">Early Departures</div>
+                    </div>
+                    <div class="zk_card_arrow"><i class="fa fa-arrow-right"/></div>
+                </div>
+            </div>
+
+            <!-- Charts Row -->
+            <div class="zk_charts_row">
+                <!-- Donut Chart -->
+                <div class="zk_chart_card">
+                    <div class="zk_chart_header">
+                        <i class="fa fa-pie-chart me-2"/>Today's Status Breakdown
+                    </div>
+                    <div class="zk_chart_body" style="height: 280px;">
+                        <canvas t-ref="donutCanvas"/>
+                    </div>
+                </div>
+
+                <!-- Bar Chart -->
+                <div class="zk_chart_card zk_chart_wide">
+                    <div class="zk_chart_header">
+                        <i class="fa fa-bar-chart me-2"/>7-Day Attendance Trend
+                    </div>
+                    <div class="zk_chart_body" style="height: 280px;">
+                        <canvas t-ref="barCanvas"/>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Leave Month Summary + Quick Links -->
+            <div class="zk_bottom_row">
+                <!-- Leave Summary -->
+                <div class="zk_leave_card">
+                    <div class="zk_chart_header"><i class="fa fa-umbrella me-2"/>This Month's Leave Summary</div>
+                    <div class="zk_leave_body">
+                        <div class="zk_leave_item">
+                            <span class="zk_leave_dot zk_dot_green"/>
+                            <span class="zk_leave_label">Paid Leave Days</span>
+                            <span class="zk_leave_value" t-esc="state.paidLeaveMonth"/>
+                        </div>
+                        <div class="zk_leave_item">
+                            <span class="zk_leave_dot zk_dot_red"/>
+                            <span class="zk_leave_label">Unpaid Leave Days</span>
+                            <span class="zk_leave_value" t-esc="state.unpaidLeaveMonth"/>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Links -->
+                <div class="zk_links_card">
+                    <div class="zk_chart_header"><i class="fa fa-bolt me-2"/>Quick Actions</div>
+                    <div class="zk_links_body">
+                        <button class="zk_link_btn zk_lb_blue" t-on-click="viewMonthly">
+                            <i class="fa fa-calendar"/> Monthly Summary
+                        </button>
+                        <button class="zk_link_btn zk_lb_green" t-on-click="viewPayroll">
+                            <i class="fa fa-money"/> Payroll Summary
+                        </button>
+                        <button class="zk_link_btn zk_lb_orange" t-on-click="viewLate">
+                            <i class="fa fa-clock-o"/> Late Report
+                        </button>
+                        <button class="zk_link_btn zk_lb_gray" t-on-click="viewEarlyLeave">
+                            <i class="fa fa-sign-out"/> Early Departure
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</t>
+</templates>

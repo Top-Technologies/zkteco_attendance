@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Flask ADMS Configuration Form View -->
+    <record id="view_adms_config_form" model="ir.ui.view">
+        <field name="name">zkteco.adms.config.form</field>
+        <field name="model">zkteco.adms.config</field>
+        <field name="arch" type="xml">
+            <form string="Flask ADMS Configuration">
+                <header>
+                    <button name="action_test_connection" string="Test Connection" type="object" class="oe_highlight" icon="fa-plug"/>
+                    <button name="action_sync_now" string="Sync Now" type="object" class="btn-success" icon="fa-refresh"/>
+                    <button name="action_fetch_device_users" string="Get Users (Device CMD)" type="object" icon="fa-users"/>
+                    <button name="action_extract_users_from_logs" string="Extract Users from Logs" type="object" class="btn-primary" icon="fa-user-plus"/>
+                    <button name="action_open_historical_sync" string="Historical Sync" type="object" icon="fa-history"/>
+                    <button name="action_comprehensive_device_test" string="Full Device Test" type="object" icon="fa-cogs"/>
+                    <button name="action_diagnose_historical_sync" string="Diagnose" type="object" icon="fa-bug"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_open_processed" type="object" class="oe_stat_button" icon="fa-check-circle" style="color: #28a745;">
+                            <field name="records_processed" widget="statinfo" string="Processed"/>
+                        </button>
+                        <button name="action_open_quarantine" type="object" class="oe_stat_button" icon="fa-exclamation-triangle" style="color: #ffc107;">
+                            <field name="records_quarantined" widget="statinfo" string="Quarantined"/>
+                        </button>
+                        <button name="action_open_devices" type="object" class="oe_stat_button" icon="fa-sitemap" style="color: #17a2b8;">
+                            <field name="devices_connected" widget="statinfo" string="Devices"/>
+                        </button>
+                    </div>
+                    
+                    <widget name="web_ribbon" title="Active" bg_color="bg-success" invisible="not active"/>
+                    <widget name="web_ribbon" title="Archived" bg_color="bg-danger" invisible="active"/>
+                    
+                    <div class="oe_title">
+                        <label for="name" class="oe_edit_only"/>
+                        <h1>
+                            <field name="name" placeholder="e.g. Main Factory ADMS"/>
+                        </h1>
+                    </div>
+
+                    <group>
+                        <group string="Connection Settings">
+                            <field name="adms_url" widget="url" placeholder="https://your-ngrok-url.ngrok.app"/>
+                            <field name="api_key" password="True"/>
+                            <field name="active" widget="boolean_toggle"/>
+                        </group>
+                        <group string="Data Processing">
+                            <field name="time_offset" widget="float_time"/>
+                        </group>
+                        <group string="System Status">
+                            <field name="connection_status" widget="badge" 
+                                   decoration-success="connection_status == 'connected'"
+                                   decoration-danger="connection_status == 'error'"
+                                   decoration-warning="connection_status == 'disconnected'"/>
+                            <field name="last_sync" readonly="1"/>
+                            <button name="action_get_device_status" string="Refresh Status" type="object" class="btn-link" icon="fa-refresh"/>
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <page string="Integration Guide" name="help">
+                            <div class="p-3">
+                                <div class="alert alert-info" role="status">
+                                    <h4 class="alert-heading"><i class="fa fa-rocket me-2" title="Setup Guide"/>ZKTeco Integration Setup</h4>
+                                    <p>Complete guide to connect your ZKTeco attendance devices with Odoo through Flask ADMS middleware.</p>
+                                    <hr/>
+                                    <ol>
+                                        <li class="mb-2"><strong>Configure Flask ADMS Server:</strong> Set up your Flask ADMS middleware server. Note the public URL.</li>
+                                        <li class="mb-2"><strong>Configure This Integration:</strong> Enter your Flask ADMS connection details (ADMS URL and API Key). Enable and test the connection.</li>
+                                        <li class="mb-2"><strong>Device Setup:</strong> Configure F22 device network settings and set ADMS server to your Flask URL.</li>
+                                        <li><strong>User Mapping:</strong> Fetch device users using the button above and map them to Odoo employees in the Device Users menu.</li>
+                                    </ol>
+                                </div>
+                            </div>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Flask ADMS Configuration Tree View -->
+    <record id="view_adms_config_tree" model="ir.ui.view">
+        <field name="name">zkteco.adms.config.tree</field>
+        <field name="model">zkteco.adms.config</field>
+        <field name="arch" type="xml">
+            <list string="Flask ADMS Configurations" decoration-muted="not active">
+                <field name="name"/>
+                <field name="adms_url"/>
+                <field name="connection_status" widget="badge"
+                       decoration-success="connection_status == 'connected'"
+                       decoration-danger="connection_status == 'error'"
+                       decoration-warning="connection_status == 'disconnected'"/>
+                <field name="last_sync"/>
+                <field name="active" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Action for Flask ADMS Configuration -->
+    <record id="action_zkteco_adms_config" model="ir.actions.act_window">
+        <field name="name">Flask ADMS Setup</field>
+        <field name="res_model">zkteco.adms.config</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Set up your first Flask ADMS Configuration
+            </p>
+            <p>
+                This configuration allows you to connect Odoo to your Flask-based ADMS server
+                for seamless ZKTeco device integration.
+            </p>
+        </field>
+    </record>
+
+    <!-- Menu Items -->
+    <menuitem id="menu_zkteco_root" name="ZK Teco" sequence="10" web_icon="hr_attendance,static/description/icon.png"/>
+    <menuitem id="menu_zkteco_configuration" name="Configuration" parent="menu_zkteco_root" sequence="100"/>
+    <menuitem id="menu_zkteco_adms_config" name="Flask ADMS" parent="menu_zkteco_configuration" action="action_zkteco_adms_config" sequence="10"/>
+
+</odoo>

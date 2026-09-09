@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_auto_rotate_wizard_form" model="ir.ui.view">
+        <field name="name">zkteco.auto.rotate.wizard.form</field>
+        <field name="model">zkteco.auto.rotate.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Assign Auto-Rotating Shifts">
+                <sheet>
+                    <div class="alert alert-info" role="alert">
+                        <strong>Auto-Rotating Shift Generator</strong>
+                        <p>This will generate non-overlapping shift assignments for the selected employees, alternating between Day and Night shift every X days.</p>
+                    </div>
+                    <group>
+                        <group string="Shift Configuration">
+                            <field name="day_shift_id"/>
+                            <field name="night_shift_id"/>
+                            <field name="rotation_days"/>
+                        </group>
+                        <group string="Duration">
+                            <field name="start_date"/>
+                            <field name="end_date"/>
+                        </group>
+                    </group>
+                    <group string="Target Employees">
+                        <field name="employee_ids" widget="many2many_tags"/>
+                    </group>
+                </sheet>
+                <footer>
+                    <button name="action_apply_rotation" string="Generate Schedule" type="object" class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_auto_rotate_wizard" model="ir.actions.act_window">
+        <field name="name">Assign Rotating Shifts</field>
+        <field name="res_model">zkteco.auto.rotate.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+    
+    <menuitem id="menu_zkteco_auto_rotate"
+              name="Assign Rotating Shifts"
+              parent="menu_zkteco_configuration"
+              action="action_auto_rotate_wizard"
+              sequence="30"/>
+</odoo>
