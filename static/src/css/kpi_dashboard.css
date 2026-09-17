@@ -1,0 +1,244 @@
+/* =========================================================
+   ZKTeco KPI Dashboard — Styles
+   ========================================================= */
+
+.zk_kpi_dashboard {
+    min-height: 100vh;
+    background: #f0f2f7;
+    font-family: 'Inter', 'Segoe UI', sans-serif;
+    padding: 0;
+}
+
+/* Loading */
+.zk_loading_overlay {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 60vh;
+    gap: 16px;
+}
+.zk_spinner {
+    width: 52px; height: 52px;
+    border: 5px solid #e2e8f0;
+    border-top-color: #3b82f6;
+    border-radius: 50%;
+    animation: zk_spin 0.85s linear infinite;
+}
+@keyframes zk_spin { to { transform: rotate(360deg); } }
+.zk_loading_text { color: #64748b; font-size: 15px; margin: 0; }
+
+.zk_dashboard_inner { padding: 20px 28px 40px; }
+
+/* ── Header ─────────────────────────────────────────── */
+.zk_header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: linear-gradient(90deg, #f4fbe3 0%, #9bc763 60%, #7cb040 100%);
+    border-radius: 18px;
+    padding: 20px 28px;
+    margin-bottom: 24px;
+    box-shadow: 0 8px 32px rgba(124, 176, 64, 0.25);
+    color: #1a2e05;
+}
+.zk_header_left { display: flex; align-items: center; gap: 16px; }
+.zk_header_icon {
+    width: 52px; height: 52px;
+    background: rgba(0,0,0,0.06);
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+}
+.zk_title { font-size: 22px; font-weight: 700; margin: 0; }
+.zk_subtitle { font-size: 13px; opacity: 0.8; margin: 2px 0 0; }
+.zk_header_right { display: flex; align-items: center; gap: 12px; }
+
+.zk_device_pill {
+    display: flex; align-items: center; gap: 8px;
+    border-radius: 999px; padding: 6px 16px;
+    font-size: 13px; font-weight: 600; background: rgba(255,255,255,0.4);
+}
+.zk_pill_online .zk_pulse_dot { background: #22c55e; }
+.zk_pill_offline .zk_pulse_dot { background: #ef4444; }
+.zk_pulse_dot {
+    width: 9px; height: 9px; border-radius: 50%;
+    animation: zk_pulse 1.8s ease-in-out infinite;
+}
+@keyframes zk_pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%       { opacity: 0.5; transform: scale(1.3); }
+}
+
+.zk_refresh_btn {
+    background: rgba(255,255,255,0.4);
+    border: 1px solid rgba(255,255,255,0.5);
+    color: #1a2e05; border-radius: 10px;
+    padding: 8px 18px; font-size: 13px; font-weight: 600;
+    cursor: pointer; transition: all .2s;
+}
+.zk_refresh_btn:hover { background: rgba(255,255,255,0.6); transform: translateY(-1px); }
+
+/* ── KPI Rings ──────────────────────────────────────── */
+.zk_kpi_row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 20px;
+}
+.zk_ring_card {
+    background: white;
+    border-radius: 16px;
+    padding: 20px 16px 14px;
+    text-align: center;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    transition: transform .2s, box-shadow .2s;
+}
+.zk_ring_card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
+
+.zk_ring_wrap { position: relative; width: 110px; height: 110px; margin: 0 auto 8px; }
+.zk_ring_svg { transform: rotate(-90deg); width: 100%; height: 100%; }
+.zk_ring_bg { fill: none; stroke: #e2e8f0; stroke-width: 10; }
+.zk_ring_fg {
+    fill: none; stroke-width: 10;
+    stroke-linecap: round;
+    stroke-dashoffset: 0;
+    transition: stroke-dasharray 0.8s ease;
+}
+.zk_ring_green  { stroke: #7cb040; }
+.zk_ring_blue   { stroke: #3b82f6; }
+.zk_ring_orange { stroke: #f97316; }
+.zk_ring_purple { stroke: #8b5cf6; }
+
+.zk_ring_label {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex; flex-direction: column; align-items: center;
+}
+.zk_ring_value { font-size: 18px; font-weight: 700; line-height: 1; color: #1e293b; }
+.zk_ring_sub   { font-size: 10px; color: #94a3b8; margin-top: 2px; }
+.zk_ring_title { font-size: 13px; color: #64748b; font-weight: 500; margin: 0; }
+
+/* ── Status Cards ───────────────────────────────────── */
+.zk_cards_row {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 14px;
+    margin-bottom: 20px;
+}
+.zk_kpi_card {
+    border-radius: 14px;
+    padding: 18px 14px;
+    display: flex; align-items: center; gap: 12px;
+    cursor: pointer;
+    transition: transform .2s, box-shadow .2s;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    color: white;
+    position: relative;
+    overflow: hidden;
+}
+.zk_kpi_card::after {
+    content: "";
+    position: absolute; inset: 0;
+    background: rgba(255,255,255,0);
+    transition: background .2s;
+}
+.zk_kpi_card:hover { transform: translateY(-4px); box-shadow: 0 10px 28px rgba(0,0,0,0.18); }
+.zk_kpi_card:hover::after { background: rgba(255,255,255,0.08); }
+
+.zk_card_icon  { font-size: 22px; opacity: 0.85; flex-shrink: 0; }
+.zk_card_body  { flex: 1; }
+.zk_card_value { font-size: 28px; font-weight: 800; line-height: 1; }
+.zk_card_label { font-size: 11px; opacity: 0.85; margin-top: 2px; text-transform: uppercase; letter-spacing: .5px; }
+.zk_card_arrow { font-size: 12px; opacity: 0.6; }
+
+.zk_card_green  { background: linear-gradient(135deg, #7cb040, #9bc763); }
+.zk_card_red    { background: linear-gradient(135deg, #b91c1c, #ef4444); }
+.zk_card_blue   { background: linear-gradient(135deg, #1d4ed8, #3b82f6); }
+.zk_card_orange { background: linear-gradient(135deg, #c2410c, #f97316); }
+.zk_card_yellow { background: linear-gradient(135deg, #a16207, #eab308); }
+.zk_card_gray   { background: linear-gradient(135deg, #334155, #64748b); }
+
+/* ── Charts Row ─────────────────────────────────────── */
+.zk_charts_row {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+.zk_chart_card {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    overflow: hidden;
+}
+.zk_chart_wide { grid-column: span 1; }
+.zk_chart_header {
+    padding: 14px 20px;
+    font-size: 14px; font-weight: 600; color: #1e293b;
+    border-bottom: 1px solid #f1f5f9;
+    background: #fafbfc;
+}
+.zk_chart_body { padding: 16px; position: relative; }
+
+/* ── Bottom Row ─────────────────────────────────────── */
+.zk_bottom_row {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 16px;
+}
+.zk_leave_card, .zk_links_card {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    overflow: hidden;
+}
+.zk_leave_body, .zk_links_body {
+    padding: 16px 20px;
+}
+.zk_leave_item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 0;
+    border-bottom: 1px solid #f1f5f9;
+}
+.zk_leave_item:last-child { border-bottom: none; }
+.zk_leave_dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.zk_dot_green { background: #22c55e; }
+.zk_dot_red   { background: #ef4444; }
+.zk_leave_label { flex: 1; font-size: 13px; color: #64748b; }
+.zk_leave_value { font-size: 20px; font-weight: 700; color: #1e293b; }
+
+/* Quick Links */
+.zk_links_body {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+.zk_link_btn {
+    display: flex; align-items: center; gap: 8px;
+    border: none; border-radius: 10px;
+    padding: 12px 14px;
+    font-size: 13px; font-weight: 500;
+    cursor: pointer;
+    transition: transform .15s, box-shadow .15s;
+    color: white;
+}
+.zk_link_btn:hover { transform: translateY(-2px); box-shadow: 0 4px 14px rgba(0,0,0,0.15); }
+.zk_lb_blue   { background: #3b82f6; }
+.zk_lb_green  { background: #22c55e; }
+.zk_lb_orange { background: #f97316; }
+.zk_lb_gray   { background: #64748b; }
+
+/* ── Responsive ─────────────────────────────────────── */
+@media (max-width: 1100px) {
+    .zk_kpi_row    { grid-template-columns: repeat(2, 1fr); }
+    .zk_cards_row  { grid-template-columns: repeat(3, 1fr); }
+    .zk_charts_row { grid-template-columns: 1fr; }
+    .zk_bottom_row { grid-template-columns: 1fr; }
+}
+@media (max-width: 640px) {
+    .zk_kpi_row    { grid-template-columns: 1fr 1fr; }
+    .zk_cards_row  { grid-template-columns: 1fr 1fr; }
+    .zk_header     { flex-direction: column; gap: 12px; }
+    .zk_dashboard_inner { padding: 12px 12px 32px; }
+}

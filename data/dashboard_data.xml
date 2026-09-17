@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        
+        <!-- Create default dashboard record -->
+        <record id="default_attendance_dashboard" model="zkteco.attendance.dashboard">
+            <field name="name">Attendance Overview</field>
+        </record>
+        
+    </data>
+</odoo>

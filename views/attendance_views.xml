@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_zkteco_attendance_calendar" model="ir.ui.view">
+        <field name="name">zkteco.attendance.calendar</field>
+        <field name="model">zkteco.attendance</field>
+        <field name="arch" type="xml">
+            <calendar string="Attendance History" date_start="timestamp" color="employee_id">
+                <field name="employee_id"/>
+                <field name="device_id"/>
+            </calendar>
+        </field>
+    </record>
+
+    <record id="view_zkteco_attendance_kanban" model="ir.ui.view">
+        <field name="name">zkteco.attendance.kanban</field>
+        <field name="model">zkteco.attendance</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="punch_date">
+                <field name="timestamp"/>
+                <field name="employee_id"/>
+                <field name="state"/>
+                <templates>
+                    <t t-name="card">
+                        <div t-attf-class="oe_kanban_global_click">
+                            <div class="oe_kanban_details">
+                                <strong class="oe_kanban_detail_title">
+                                    <field name="employee_id"/>
+                                </strong>
+                                <div class="text-muted">
+                                    <field name="timestamp"/>
+                                </div>
+                                <div class="mt-2">
+                                    <field name="state" widget="badge"
+                                           decoration-info="state == 'draft'"
+                                           decoration-success="state == 'processed'"
+                                           decoration-danger="state == 'error'"/>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="view_zkteco_attendance_tree" model="ir.ui.view">
+        <field name="name">zkteco.attendance.tree</field>
+        <field name="model">zkteco.attendance</field>
+        <field name="arch" type="xml">
+            <list decoration-info="state == 'draft'" decoration-danger="state == 'error'" create="false">
+                <field name="timestamp"/>
+                <field name="device_id"/>
+                <field name="device_branch_id" string="Branch" optional="show"/>
+                <field name="employee_id" string="Employee Name"/>
+                <field name="daily_status" widget="badge" 
+                       decoration-success="daily_status == 'present'" 
+                       decoration-danger="daily_status == 'absent'" 
+                       decoration-warning="daily_status == 'missed_punch'" 
+                       decoration-info="daily_status == 'on_leave'"/>
+                <field name="state" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_zkteco_attendance_search" model="ir.ui.view">
+        <field name="name">zkteco.attendance.search</field>
+        <field name="model">zkteco.attendance</field>
+        <field name="arch" type="xml">
+            <search string="Search Attendance Logs">
+                <field name="punch_date"/>
+                <field name="device_user_id"/>
+                <field name="employee_id"/>
+                <field name="device_id"/>
+                <field name="device_branch_id" string="Branch"/>
+                <separator/>
+                <filter string="Today" name="today" domain="[('punch_date', '=', context_today().strftime('%Y-%m-%d'))]"/>
+                <filter string="This Month" name="this_month" domain="[('punch_date', '&gt;=', (context_today().replace(day=1)).strftime('%Y-%m-%d')), ('punch_date', '&lt;=', context_today().strftime('%Y-%m-%d'))]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Branch" name="group_branch" context="{'group_by': 'device_branch_id'}"/>
+                    <filter string="Draft" name="draft" domain="[('state', '=', 'draft')]"/>
+                    <filter string="Processed" name="processed" domain="[('state', '=', 'processed')]"/>
+                    <filter string="Error" name="error" domain="[('state', '=', 'error')]"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="view_zkteco_attendance_form" model="ir.ui.view">
+        <field name="name">zkteco.attendance.form</field>
+        <field name="model">zkteco.attendance</field>
+        <field name="arch" type="xml">
+                <form>
+                    <header>
+                        <button name="action_process_logs" string="Process Draft Logs" type="object" class="btn-primary" invisible="state != 'draft'"/>
+                        <field name="state" widget="statusbar" statusbar_visible="draft,processed,error"/>
+                    </header>
+                    <sheet>
+                        <group>
+                            <group string="Punch Details">
+                                <field name="timestamp"/>
+                                <field name="device_id"/>
+                                <field name="device_user_id"/>
+                                <field name="event_type"/>
+                            </group>
+                            <group string="Employee Information">
+                                <field name="employee_id" readonly="1"/>
+                                <field name="error_message" readonly="1" invisible="not error_message"/>
+                            </group>
+                        </group>
+                        <group string="Employee Attendance History" invisible="not employee_id">
+                            <group>
+                                <field name="emp_present_days" readonly="1"/>
+                                <field name="emp_absent_days" readonly="1"/>
+                            </group>
+                            <group>
+                                <field name="emp_worked_hours" widget="float_time" readonly="1"/>
+                                <field name="emp_overtime_hours" widget="float_time" readonly="1"/>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+        </field>
+    </record>
+
+    <record id="action_zkteco_attendance" model="ir.actions.act_window">
+        <field name="name">Attendance History</field>
+        <field name="res_model">zkteco.attendance</field>
+        <field name="view_mode">list,calendar,kanban,form</field>
+    </record>
+
+    <record id="action_server_process_zkteco_logs" model="ir.actions.server">
+        <field name="name">Process Draft Logs</field>
+        <field name="model_id" ref="model_zkteco_attendance"/>
+        <field name="binding_model_id" ref="model_zkteco_attendance"/>
+        <field name="state">code</field>
+        <field name="code">action = model.action_process_logs()</field>
+    </record>
+
+    <!-- Attendance History menu removed per user request -->
+    <menuitem id="menu_zkteco_attendance" name="Attendance History" parent="menu_zkteco_root" action="action_zkteco_attendance" sequence="10" active="False"/>
+</odoo>

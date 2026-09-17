@@ -1,0 +1,618 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ═══════════════════════════════════════════════════
+         1. DAILY ATTENDANCE REGISTER
+         ═══════════════════════════════════════════════════ -->
+    <record id="view_daily_attendance_register_tree" model="ir.ui.view">
+        <field name="name">zkteco.daily.attendance.register.tree</field>
+        <field name="model">zkteco.daily.attendance.register</field>
+        <field name="arch" type="xml">
+            <list string="Daily Attendance Register" decoration-danger="status == 'absent'" decoration-warning="is_late or is_early_leave or status == 'missed_punch'" decoration-success="status == 'present'">
+                <field name="date"/>
+                <field name="employee_id"/>
+                <field name="department_id"/>
+                <field name="employee_branch_id"/>
+                <field name="shift_id"/>
+                <field name="first_checkin"/>
+                <field name="last_checkout"/>
+                <field name="total_punches"/>
+                <field name="worked_hours" widget="float"/>
+                <field name="expected_hours" widget="float"/>
+                <field name="late_minutes"/>
+                <field name="early_leave_minutes"/>
+                <field name="overtime_hours" widget="float"/>
+                <field name="status" widget="badge"/>
+                <field name="is_late"/>
+                <field name="is_early_leave"/>
+                <field name="remarks"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_daily_attendance_register_pivot" model="ir.ui.view">
+        <field name="name">zkteco.daily.attendance.register.pivot</field>
+        <field name="model">zkteco.daily.attendance.register</field>
+        <field name="arch" type="xml">
+            <pivot string="Daily Attendance Register Analysis">
+                <field name="date" type="row"/>
+                <field name="department_id" type="row"/>
+                <field name="status" type="col"/>
+                <field name="worked_hours" type="measure"/>
+                <field name="overtime_hours" type="measure"/>
+                <field name="late_minutes" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="view_daily_attendance_register_search" model="ir.ui.view">
+        <field name="name">zkteco.daily.attendance.register.search</field>
+        <field name="model">zkteco.daily.attendance.register</field>
+        <field name="arch" type="xml">
+            <search string="Daily Attendance Register Search">
+                <field name="employee_id"/>
+                <field name="department_id"/>
+                <field name="employee_branch_id"/>
+                <field name="date"/>
+                <field name="status"/>
+                <filter string="Present" name="status_present" domain="[('status', '=', 'present')]"/>
+                <filter string="Absent" name="status_absent" domain="[('status', '=', 'absent')]"/>
+                <filter string="Late Arrivals" name="filter_late" domain="[('is_late', '=', True)]"/>
+                <filter string="Early Departures" name="filter_early" domain="[('is_early_leave', '=', True)]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Date" name="group_date" context="{'group_by': 'date'}"/>
+                    <filter string="Department" name="group_dept" context="{'group_by': 'department_id'}"/>
+                    <filter string="Branch" name="group_branch" context="{'group_by': 'employee_branch_id'}"/>
+                    <filter string="Status" name="group_status" context="{'group_by': 'status'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_daily_attendance_register" model="ir.actions.act_window">
+        <field name="name">Daily Attendance Register</field>
+        <field name="res_model">zkteco.daily.attendance.register</field>
+        <field name="view_mode">list,pivot</field>
+        <field name="search_view_id" ref="view_daily_attendance_register_search"/>
+    </record>
+
+    <!-- ═══════════════════════════════════════════════════
+         2. MONTHLY ATTENDANCE SUMMARY
+         ═══════════════════════════════════════════════════ -->
+    <record id="view_monthly_attendance_summary_tree" model="ir.ui.view">
+        <field name="name">zkteco.monthly.attendance.summary.tree</field>
+        <field name="model">zkteco.monthly.attendance.summary</field>
+        <field name="arch" type="xml">
+            <list string="Monthly Attendance Summary">
+                <field name="year_month"/>
+                <field name="employee_id"/>
+                <field name="department_id"/>
+                <field name="employee_branch_id"/>
+                <field name="present_days"/>
+                <field name="absent_days"/>
+                <field name="on_leave_days"/>
+                <field name="paid_leave_days" optional="show"/>
+                <field name="unpaid_leave_days" optional="show"/>
+                <field name="half_day_leave_days" optional="hide"/>
+                <field name="missed_punch_days"/>
+                <field name="late_days"/>
+                <field name="early_leave_days"/>
+                <field name="total_worked_hours" widget="float"/>
+                <field name="total_overtime_hours" widget="float"/>
+                <field name="total_late_minutes"/>
+            </list>
+
+        </field>
+    </record>
+
+    <record id="view_monthly_attendance_summary_pivot" model="ir.ui.view">
+        <field name="name">zkteco.monthly.attendance.summary.pivot</field>
+        <field name="model">zkteco.monthly.attendance.summary</field>
+        <field name="arch" type="xml">
+            <pivot string="Monthly Attendance Summary Pivot">
+                <field name="employee_id" type="row"/>
+                <field name="year_month" type="col"/>
+                <field name="present_days" type="measure"/>
+                <field name="absent_days" type="measure"/>
+                <field name="total_worked_hours" type="measure"/>
+                <field name="total_overtime_hours" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="action_monthly_attendance_summary" model="ir.actions.act_window">
+        <field name="name">Monthly Attendance Summary</field>
+        <field name="res_model">zkteco.monthly.attendance.summary</field>
+        <field name="view_mode">pivot,list</field>
+    </record>
+
+    <!-- ═══════════════════════════════════════════════════
+         3. EMPLOYEE TIMESHEET REPORT
+         ═══════════════════════════════════════════════════ -->
+    <record id="view_employee_timesheet_report_tree" model="ir.ui.view">
+        <field name="name">zkteco.employee.timesheet.report.tree</field>
+        <field name="model">zkteco.employee.timesheet.report</field>
+        <field name="arch" type="xml">
+            <list string="Employee Timesheet Report">
+                <field name="date"/>
+                <field name="employee_id"/>
+                <field name="department_id"/>
+                <field name="shift_id"/>
+                <field name="first_checkin"/>
+                <field name="last_checkout"/>
+                <field name="worked_hours" widget="float"/>
+                <field name="expected_hours" widget="float"/>
+                <field name="overtime_hours" widget="float"/>
+                <field name="late_minutes"/>
+                <field name="early_leave_minutes"/>
+                <field name="status" widget="badge"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_employee_timesheet_report" model="ir.actions.act_window">
+        <field name="name">Employee Timesheet Report</field>
+        <field name="res_model">zkteco.employee.timesheet.report</field>
+        <field name="view_mode">list,pivot</field>
+    </record>
+
+    <!-- ═══════════════════════════════════════════════════
+         4. OVERTIME REPORT
+         ═══════════════════════════════════════════════════ -->
+    <record id="view_overtime_report_tree" model="ir.ui.view">
+        <field name="name">zkteco.overtime.report.tree</field>
+        <field name="model">zkteco.overtime.report</field>
+        <field name="arch" type="xml">
+            <list string="Overtime Report" create="0" delete="0">
+                <field name="date"/>
+                <field name="employee_id"/>
+                <field name="department_id"/>
+                <field name="employee_branch_id"/>
+                <field name="shift_id"/>
+                <field name="worked_hours" widget="float"/>
+                <field name="expected_hours" widget="float"/>
+                <field name="overtime_hours" widget="float" sum="Total Overtime"/>
+                <field name="remarks"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_overtime_report_form" model="ir.ui.view">
+        <field name="name">zkteco.overtime.report.form</field>
+        <field name="model">zkteco.overtime.report</field>
+        <field name="arch" type="xml">
+            <form string="Overtime Details" create="0" edit="0" delete="0">
+                <header>
+                    <button name="action_view_attendance_record" 
+                            string="Open Daily Attendance Record" 
+                            type="object" 
+                            class="oe_highlight" 
+                            icon="fa-calendar-check-o"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="employee_id" string="Employee"/>
+                        <h1>
+                            <field name="employee_id" readonly="1" options="{'no_open': False}"/>
+                        </h1>
+                        <h3>
+                            <field name="date" readonly="1"/>
+                        </h3>
+                    </div>
+                    <group>
+                        <group string="Shift &amp; Organization">
+                            <field name="department_id" readonly="1"/>
+                            <field name="employee_branch_id" readonly="1"/>
+                            <field name="shift_id" readonly="1"/>
+                        </group>
+                        <group string="Punch Timestamps">
+                            <field name="first_checkin" widget="datetime" readonly="1"/>
+                            <field name="last_checkout" widget="datetime" readonly="1"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Hours Breakdown">
+                            <field name="worked_hours" widget="float_time" readonly="1"/>
+                            <field name="expected_hours" widget="float_time" readonly="1"/>
+                            <field name="overtime_hours" widget="float_time" readonly="1" class="text-success fw-bold"/>
+                        </group>
+                        <group string="Additional Info">
+                            <field name="remarks" readonly="1"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_overtime_report_search" model="ir.ui.view">
+        <field name="name">zkteco.overtime.report.search</field>
+        <field name="model">zkteco.overtime.report</field>
+        <field name="arch" type="xml">
+            <search string="Search Overtime Report">
+                <field name="employee_id"/>
+                <field name="department_id"/>
+                <field name="employee_branch_id"/>
+                <field name="shift_id"/>
+                <field name="date"/>
+                <separator/>
+                <filter string="Date" name="filter_date" date="date"/>
+                <group expand="0" string="Group By">
+                    <filter string="Employee" name="group_employee" context="{'group_by': 'employee_id'}"/>
+                    <filter string="Department" name="group_department" context="{'group_by': 'department_id'}"/>
+                    <filter string="Branch" name="group_branch" context="{'group_by': 'employee_branch_id'}"/>
+                    <filter string="Shift" name="group_shift" context="{'group_by': 'shift_id'}"/>
+                    <filter string="Date" name="group_date" context="{'group_by': 'date:month'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="view_overtime_report_pivot" model="ir.ui.view">
+        <field name="name">zkteco.overtime.report.pivot</field>
+        <field name="model">zkteco.overtime.report</field>
+        <field name="arch" type="xml">
+            <pivot string="Overtime Pivot">
+                <field name="employee_id" type="row"/>
+                <field name="date" type="col"/>
+                <field name="overtime_hours" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="action_overtime_report_custom" model="ir.actions.act_window">
+        <field name="name">Overtime Report</field>
+        <field name="res_model">zkteco.overtime.report</field>
+        <field name="view_mode">list,pivot,form</field>
+        <field name="search_view_id" ref="view_overtime_report_search"/>
+    </record>
+
+    <!-- ═══════════════════════════════════════════════════
+         5. LATE ARRIVAL & EARLY DEPARTURE REPORT
+         ═══════════════════════════════════════════════════ -->
+    <record id="view_late_early_report_tree" model="ir.ui.view">
+        <field name="name">zkteco.late.early.report.tree</field>
+        <field name="model">zkteco.late.early.report</field>
+        <field name="arch" type="xml">
+            <list string="Late Arrival &amp; Early Departure Report" decoration-danger="late_minutes > 30 or early_leave_minutes > 30" decoration-warning="late_minutes > 0 or early_leave_minutes > 0">
+                <field name="date"/>
+                <field name="employee_id"/>
+                <field name="department_id"/>
+                <field name="shift_id"/>
+                <field name="first_checkin"/>
+                <field name="last_checkout"/>
+                <field name="late_minutes" sum="Total Late Mins"/>
+                <field name="early_leave_minutes" sum="Total Early Leave Mins"/>
+                <field name="is_late"/>
+                <field name="is_early_leave"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_late_early_report_custom" model="ir.actions.act_window">
+        <field name="name">Late Arrival &amp; Early Departure Report</field>
+        <field name="res_model">zkteco.late.early.report</field>
+        <field name="view_mode">list,pivot</field>
+    </record>
+
+    <!-- ═══════════════════════════════════════════════════
+         6. MISSING PUNCH REPORT
+         ═══════════════════════════════════════════════════ -->
+    <record id="view_missing_punch_report_tree" model="ir.ui.view">
+        <field name="name">zkteco.missing.punch.report.tree</field>
+        <field name="model">zkteco.missing.punch.report</field>
+        <field name="arch" type="xml">
+            <list string="Missing Punch Report" decoration-danger="missing_type == 'no_checkout'">
+                <field name="date"/>
+                <field name="employee_id"/>
+                <field name="department_id"/>
+                <field name="employee_branch_id"/>
+                <field name="shift_id"/>
+                <field name="first_checkin"/>
+                <field name="last_checkout"/>
+                <field name="total_punches"/>
+                <field name="missing_type" widget="badge"/>
+                <field name="remarks"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_missing_punch_report_custom" model="ir.actions.act_window">
+        <field name="name">Missing Punch Report</field>
+        <field name="res_model">zkteco.missing.punch.report</field>
+        <field name="view_mode">list,pivot</field>
+    </record>
+
+    <!-- ═══════════════════════════════════════════════════
+         7. SHIFT COMPLIANCE REPORT
+         ═══════════════════════════════════════════════════ -->
+    <record id="view_shift_compliance_report_tree" model="ir.ui.view">
+        <field name="name">zkteco.shift.compliance.report.tree</field>
+        <field name="model">zkteco.shift.compliance.report</field>
+        <field name="arch" type="xml">
+            <list string="Shift Compliance Report">
+                <field name="employee_id"/>
+                <field name="department_id"/>
+                <field name="shift_id"/>
+                <field name="total_assigned_days"/>
+                <field name="compliant_days"/>
+                <field name="late_count"/>
+                <field name="early_leave_count" sum="Total Early Leaves"/>
+                <field name="absent_count" sum="Total Absences"/>
+                <field name="total_worked_hours" widget="float_time"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_shift_compliance_report" model="ir.actions.act_window">
+        <field name="name">Shift Compliance Report</field>
+        <field name="res_model">zkteco.shift.compliance.report</field>
+        <field name="view_mode">list,pivot</field>
+    </record>
+
+    <!-- ═══════════════════════════════════════════════════
+         8. ATTENDANCE EXCEPTION REPORT
+         ═══════════════════════════════════════════════════ -->
+    <record id="view_exception_report_tree" model="ir.ui.view">
+        <field name="name">zkteco.exception.report.tree</field>
+        <field name="model">zkteco.exception.report</field>
+        <field name="arch" type="xml">
+            <list string="Attendance Exception Report" decoration-danger="severity == 'critical'" decoration-warning="severity in ('high', 'medium')" decoration-info="severity == 'low'">
+                <field name="date"/>
+                <field name="employee_id"/>
+                <field name="department_id"/>
+                <field name="employee_branch_id"/>
+                <field name="exception_type" widget="badge"/>
+                <field name="severity" widget="badge"/>
+                <field name="details"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_exception_report_custom" model="ir.actions.act_window">
+        <field name="name">Attendance Exception Report</field>
+        <field name="res_model">zkteco.exception.report</field>
+        <field name="view_mode">list,pivot</field>
+    </record>
+
+    <!-- ═══════════════════════════════════════════════════
+         9. DEPARTMENT ATTENDANCE DASHBOARD REPORT
+         ═══════════════════════════════════════════════════ -->
+    <record id="view_department_attendance_report_tree" model="ir.ui.view">
+        <field name="name">zkteco.department.attendance.report.tree</field>
+        <field name="model">zkteco.department.attendance.report</field>
+        <field name="arch" type="xml">
+            <list string="Department Attendance Summary">
+                <field name="department_id"/>
+                <field name="total_employees"/>
+                <field name="present_count"/>
+                <field name="absent_count"/>
+                <field name="on_leave_count"/>
+                <field name="missed_punch_count"/>
+                <field name="late_count"/>
+                <field name="early_leave_count"/>
+                <field name="attendance_rate" widget="percentage"/>
+                <field name="punctuality_rate" widget="percentage"/>
+                <field name="total_worked_hours" widget="float"/>
+                <field name="total_overtime_hours" widget="float"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_department_attendance_report" model="ir.actions.act_window">
+        <field name="name">Department Attendance Dashboard</field>
+        <field name="res_model">zkteco.department.attendance.report</field>
+        <field name="view_mode">list,pivot,graph</field>
+    </record>
+
+    <!-- ═══════════════════════════════════════════════════
+         10. PAYROLL ATTENDANCE SUMMARY
+         ═══════════════════════════════════════════════════ -->
+    <record id="view_payroll_attendance_summary_tree" model="ir.ui.view">
+        <field name="name">zkteco.payroll.attendance.summary.tree</field>
+        <field name="model">zkteco.payroll.attendance.summary</field>
+        <field name="arch" type="xml">
+            <list string="Payroll Attendance Summary">
+                <field name="year_month"/>
+                <field name="employee_id"/>
+                <field name="department_id"/>
+                <field name="employee_branch_id"/>
+                <field name="shift_id"/>
+                <field name="total_calendar_days"/>
+                <field name="present_days"/>
+                <field name="on_leave_days"/>
+                <field name="paid_leave_days" optional="show"/>
+                <field name="unpaid_leave_days" optional="show"/>
+                <field name="payable_days" class="fw-bold"/>
+                <field name="unpaid_absence_days" class="fw-bold"/>
+                <field name="worked_hours" widget="float"/>
+                <field name="overtime_hours" widget="float"/>
+                <field name="late_minutes"/>
+                <field name="early_leave_minutes"/>
+            </list>
+
+        </field>
+    </record>
+
+    <record id="action_payroll_attendance_summary" model="ir.actions.act_window">
+        <field name="name">Payroll Attendance Summary</field>
+        <field name="res_model">zkteco.payroll.attendance.summary</field>
+        <field name="view_mode">list,pivot</field>
+    </record>
+
+    <!-- ═══════════════════════════════════════════════════
+         11. ATTENDANCE AUDIT TRAIL
+         ═══════════════════════════════════════════════════ -->
+    <record id="view_attendance_audit_trail_tree" model="ir.ui.view">
+        <field name="name">zkteco.attendance.audit.trail.tree</field>
+        <field name="model">zkteco.attendance.audit.trail</field>
+        <field name="arch" type="xml">
+            <list string="Attendance Audit Trail">
+                <field name="timestamp"/>
+                <field name="name"/>
+                <field name="employee_id"/>
+                <field name="attendance_record_id"/>
+                <field name="user_id"/>
+                <field name="action_type" widget="badge"/>
+                <field name="field_name"/>
+                <field name="notes"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_attendance_audit_trail" model="ir.actions.act_window">
+        <field name="name">Attendance Audit Trail</field>
+        <field name="res_model">zkteco.attendance.audit.trail</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <!-- ═══════════════════════════════════════════════════
+         12. ATTENDANCE BY BRANCH / LOCATION REPORT
+         ═══════════════════════════════════════════════════ -->
+    <record id="view_branch_attendance_report_tree" model="ir.ui.view">
+        <field name="name">zkteco.branch.attendance.report.tree</field>
+        <field name="model">zkteco.branch.attendance.report</field>
+        <field name="arch" type="xml">
+            <list string="Attendance by Branch / Location">
+                <field name="branch_id"/>
+                <field name="date"/>
+                <field name="employee_id"/>
+                <field name="department_id"/>
+                <field name="status" widget="badge" 
+                       decoration-success="status == 'present'" 
+                       decoration-danger="status == 'absent'" 
+                       decoration-warning="status == 'missed_punch'" 
+                       decoration-info="status == 'on_leave'"/>
+                <field name="first_checkin"/>
+                <field name="last_checkout"/>
+                <field name="worked_hours" widget="float"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_branch_attendance_report_search" model="ir.ui.view">
+        <field name="name">zkteco.branch.attendance.report.search</field>
+        <field name="model">zkteco.branch.attendance.report</field>
+        <field name="arch" type="xml">
+            <search string="Search Branch Attendance">
+                <field name="employee_id"/>
+                <field name="branch_id"/>
+                <filter name="filter_today" string="Today" 
+                        domain="[('date', '=', context_today().strftime('%Y-%m-%d'))]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Branch" name="group_by_branch" context="{'group_by': 'branch_id'}"/>
+                    <filter string="Date" name="group_by_date" context="{'group_by': 'date'}"/>
+                    <filter string="Status" name="group_by_status" context="{'group_by': 'status'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_branch_attendance_report" model="ir.actions.act_window">
+        <field name="name">Attendance by Branch/Location</field>
+        <field name="res_model">zkteco.branch.attendance.report</field>
+        <field name="view_mode">list,pivot</field>
+        <field name="context">{'search_default_group_by_branch': 1, 'search_default_filter_today': 1}</field>
+    </record>
+
+
+    <!-- ═══════════════════════════════════════════════════
+         NEW NAVIGATION MENU STRUCTURE
+         ═══════════════════════════════════════════════════ -->
+
+    <menuitem id="menu_zkteco_reports_parent"
+              name="Reports &amp; Analytics"
+              parent="menu_zkteco_root"
+              sequence="45"/>
+
+    <!-- Submenu 1: Attendance Registers & Summaries -->
+    <menuitem id="menu_zkteco_sub_registers"
+              name="Attendance Registers"
+              parent="menu_zkteco_reports_parent"
+              sequence="10"/>
+
+    <menuitem id="menu_zkteco_daily_register_item"
+              name="Daily Attendance Register"
+              parent="menu_zkteco_sub_registers"
+              action="action_daily_attendance_register"
+              sequence="10"/>
+
+    <menuitem id="menu_zkteco_monthly_summary_item"
+              name="Monthly Attendance Summary"
+              parent="menu_zkteco_sub_registers"
+              action="action_monthly_attendance_summary"
+              sequence="20"/>
+
+    <menuitem id="menu_zkteco_employee_timesheet_item"
+              name="Employee Timesheet Report"
+              parent="menu_zkteco_sub_registers"
+              action="action_employee_timesheet_report"
+              sequence="30"/>
+
+    <menuitem id="menu_zkteco_branch_report_item"
+              name="Attendance by Branch/Location"
+              parent="menu_zkteco_sub_registers"
+              action="action_branch_attendance_report"
+              sequence="40"/>
+
+    <!-- Submenu 2: Exceptions & Compliance -->
+    <menuitem id="menu_zkteco_sub_exceptions"
+              name="Exceptions &amp; Compliance"
+              parent="menu_zkteco_reports_parent"
+              sequence="20"/>
+
+    <menuitem id="menu_zkteco_overtime_item"
+              name="Overtime Report"
+              parent="menu_zkteco_sub_exceptions"
+              action="action_overtime_report_custom"
+              sequence="10"/>
+
+    <menuitem id="menu_zkteco_late_early_item"
+              name="Late &amp; Early Departure Report"
+              parent="menu_zkteco_sub_exceptions"
+              action="action_late_early_report_custom"
+              sequence="20"/>
+
+    <menuitem id="menu_zkteco_missing_punch_item"
+              name="Missing Punch Report"
+              parent="menu_zkteco_sub_exceptions"
+              action="action_missing_punch_report_custom"
+              sequence="30"/>
+
+    <menuitem id="menu_zkteco_shift_compliance_item"
+              name="Shift Compliance Report"
+              parent="menu_zkteco_sub_exceptions"
+              action="action_shift_compliance_report"
+              sequence="40"/>
+
+    <menuitem id="menu_zkteco_exception_item"
+              name="Attendance Exception Report"
+              parent="menu_zkteco_sub_exceptions"
+              action="action_exception_report_custom"
+              sequence="50"/>
+
+    <!-- Submenu 3: Dashboards & Payroll/Audit -->
+    <menuitem id="menu_zkteco_sub_dashboards"
+              name="Dashboards &amp; Audit"
+              parent="menu_zkteco_reports_parent"
+              sequence="30"/>
+
+    <menuitem id="menu_zkteco_dept_dashboard_item"
+              name="Department Attendance Dashboard"
+              parent="menu_zkteco_sub_dashboards"
+              action="action_department_attendance_report"
+              sequence="10"/>
+
+    <menuitem id="menu_zkteco_payroll_summary_item"
+              name="Payroll Attendance Summary"
+              parent="menu_zkteco_sub_dashboards"
+              action="action_payroll_attendance_summary"
+              sequence="20"/>
+
+    <menuitem id="menu_zkteco_audit_trail_item"
+              name="Attendance Audit Trail"
+              parent="menu_zkteco_sub_dashboards"
+              action="action_attendance_audit_trail"
+              sequence="30"/>
+
+</odoo>

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+        <!-- Chart.js CDN script -->
+        <record id="asset_chartjs" model="ir.asset">
+            <field name="name">Chart.js CDN</field>
+            <field name="bundle">web.assets_backend</field>
+            <field name="path">https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js</field>
+            <field name="sequence">1</field>
+        </record>
+
+        <!-- KPI Dashboard CSS -->
+        <record id="asset_kpi_dashboard_css" model="ir.asset">
+            <field name="name">ZKTeco KPI Dashboard CSS</field>
+            <field name="bundle">web.assets_backend</field>
+            <field name="path">zkteco_attendance/static/src/css/kpi_dashboard.css</field>
+        </record>
+
+        <!-- Existing dashboard CSS -->
+        <record id="asset_dashboard_css" model="ir.asset">
+            <field name="name">ZKTeco Dashboard CSS</field>
+            <field name="bundle">web.assets_backend</field>
+            <field name="path">zkteco_attendance/static/src/css/dashboard.css</field>
+        </record>
+
+        <!-- KPI Dashboard OWL XML template -->
+        <record id="asset_kpi_dashboard_xml" model="ir.asset">
+            <field name="name">ZKTeco KPI Dashboard XML</field>
+            <field name="bundle">web.assets_backend</field>
+            <field name="path">zkteco_attendance/static/src/xml/kpi_dashboard.xml</field>
+        </record>
+
+        <!-- KPI Dashboard OWL JS component -->
+        <record id="asset_kpi_dashboard_js" model="ir.asset">
+            <field name="name">ZKTeco KPI Dashboard JS</field>
+            <field name="bundle">web.assets_backend</field>
+            <field name="path">zkteco_attendance/static/src/js/kpi_dashboard.js</field>
+        </record>
+</odoo>

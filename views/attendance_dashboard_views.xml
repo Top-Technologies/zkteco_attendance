@@ -1,0 +1,428 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Enhanced Modern Dashboard Form View -->
+    <record id="view_attendance_dashboard_form" model="ir.ui.view">
+        <field name="name">zkteco.attendance.dashboard.form</field>
+        <field name="model">zkteco.attendance.dashboard</field>
+        <field name="arch" type="xml">
+            <form string="Attendance Dashboard" create="false" delete="false" class="o_attendance_dashboard_modern">
+                <header>
+                    <button name="action_refresh_dashboard" string="Refresh Dashboard" type="object" class="btn-primary" icon="fa-refresh"/>
+                    <button name="action_view_detailed_attendance" string="Detailed Analysis" type="object" class="btn-secondary" icon="fa-chart-bar"/>
+                    <button name="%(action_zkteco_adms_config)d" string="System Settings" type="action" class="btn-outline-secondary" icon="fa-cogs"/>
+                </header>
+                <sheet>
+                    <!-- Header Section with Live Status -->
+                    <div class="o_dashboard_header mb-4">
+                        <div class="row align-items-center">
+                            <div class="col-md-8">
+                                <h1 class="text-primary mb-1">
+                                    <i class="fa fa-dashboard me-2" title="Dashboard"/>
+                                    <field name="name" readonly="1"/>
+                                </h1>
+                                <p class="text-muted mb-0">
+                                    <i class="fa fa-calendar me-1"/>
+                                    Real-time attendance overview for <strong>today</strong>
+                                    <span class="badge bg-success ms-2">
+                                        <i class="fa fa-clock me-1"/>LIVE
+                                    </span>
+                                </p>
+                            </div>
+                            <div class="col-md-4 text-end">
+                                <div class="system-status">
+                                    <div class="row">
+                                        <div class="col-6 text-center">
+                                            <div class="status-indicator">
+                                                <div class="status-dot bg-success"></div>
+                                                <small class="d-block mt-1">
+                                                    <field name="online_devices"/> / <field name="total_devices"/> Devices
+                                                </small>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 text-center">
+                                            <div class="attendance-rate">
+                                                <div class="progress" style="height: 20px;">
+                                                    <div class="progress-bar bg-primary" role="progressbar">
+                                                        <field name="attendance_this_month" widget="percentage"/>
+                                                    </div>
+                                                </div>
+                                                <small class="d-block mt-1">Monthly Rate</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Main Statistics Cards -->
+                    <div class="o_dashboard_cards mb-4">
+                        <div class="row g-3">
+                            <!-- Present Today Card -->
+                            <div class="col-xl-3 col-lg-6 col-md-6">
+                                <div class="card border-0 shadow-sm h-100 card-hover">
+                                    <div class="card-body">
+                                        <div class="d-flex align-items-center">
+                                            <div class="flex-shrink-0">
+                                                <div class="avatar-icon bg-success bg-gradient rounded-3">
+                                                    <i class="fa fa-user-check fa-2x text-white" title="Present Today"/>
+                                                </div>
+                                            </div>
+                                            <div class="flex-grow-1 ms-3">
+                                                <div class="stat-label text-muted small">Present Today</div>
+                                                <div class="stat-value text-success fw-bold fs-2">
+                                                    <field name="present_today"/>
+                                                </div>
+                                                <div class="stat-change">
+                                                    <span class="badge bg-success bg-opacity-10 text-success">
+                                                        <i class="fa fa-arrow-up me-1"/>Active
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="mt-3">
+                                            <button name="action_view_present_today" type="object" 
+                                                    class="btn btn-success btn-sm w-100">
+                                                <i class="fa fa-eye me-1"/>View Details
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Absent Today Card -->
+                            <div class="col-xl-3 col-lg-6 col-md-6">
+                                <div class="card border-0 shadow-sm h-100 card-hover">
+                                    <div class="card-body">
+                                        <div class="d-flex align-items-center">
+                                            <div class="flex-shrink-0">
+                                                <div class="avatar-icon bg-danger bg-gradient rounded-3">
+                                                    <i class="fa fa-user-times fa-2x text-white" title="Absent Today"/>
+                                                </div>
+                                            </div>
+                                            <div class="flex-grow-1 ms-3">
+                                                <div class="stat-label text-muted small">Absent Today</div>
+                                                <div class="stat-value text-danger fw-bold fs-2">
+                                                    <field name="absent_today"/>
+                                                </div>
+                                                <div class="stat-change">
+                                                    <span class="badge bg-danger bg-opacity-10 text-danger">
+                                                        <i class="fa fa-exclamation me-1"/>Attention
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="mt-3">
+                                            <button name="action_view_absent_today" type="object" 
+                                                    class="btn btn-danger btn-sm w-100">
+                                                <i class="fa fa-search me-1"/>Investigate
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Missed Punch Card -->
+                            <div class="col-xl-3 col-lg-6 col-md-6">
+                                <div class="card border-0 shadow-sm h-100 card-hover">
+                                    <div class="card-body">
+                                        <div class="d-flex align-items-center">
+                                            <div class="flex-shrink-0">
+                                                <div class="avatar-icon bg-warning bg-gradient rounded-3">
+                                                    <i class="fa fa-exclamation-triangle fa-2x text-white" title="Missed Punch Today"/>
+                                                </div>
+                                            </div>
+                                            <div class="flex-grow-1 ms-3">
+                                                <div class="stat-label text-muted small">Missed Punch</div>
+                                                <div class="stat-value text-warning fw-bold fs-2">
+                                                    <field name="missed_punch_today"/>
+                                                </div>
+                                                <div class="stat-change">
+                                                    <span class="badge bg-warning bg-opacity-10 text-warning">
+                                                        <i class="fa fa-bell me-1"/>Review Needed
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="mt-3">
+                                            <button name="action_view_missed_punch_today" type="object" 
+                                                    class="btn btn-warning btn-sm w-100">
+                                                <i class="fa fa-clipboard-list me-1"/>Review Cases
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- On Leave Card -->
+                            <div class="col-xl-3 col-lg-6 col-md-6">
+                                <div class="card border-0 shadow-sm h-100 card-hover">
+                                    <div class="card-body">
+                                        <div class="d-flex align-items-center">
+                                            <div class="flex-shrink-0">
+                                                <div class="avatar-icon bg-info bg-gradient rounded-3">
+                                                    <i class="fa fa-calendar-check fa-2x text-white" title="On Leave Today"/>
+                                                </div>
+                                            </div>
+                                            <div class="flex-grow-1 ms-3">
+                                                <div class="stat-label text-muted small">On Leave</div>
+                                                <div class="stat-value text-info fw-bold fs-2">
+                                                    <field name="on_leave_today"/>
+                                                </div>
+                                                <div class="stat-change">
+                                                    <span class="badge bg-info bg-opacity-10 text-info">
+                                                        <i class="fa fa-plane me-1"/>Approved
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="mt-3">
+                                            <button name="action_view_on_leave_today" type="object" 
+                                                    class="btn btn-info btn-sm w-100">
+                                                <i class="fa fa-list me-1"/>Leave Details
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Secondary Metrics Row -->
+                    <div class="row g-3 mb-4">
+                        <!-- Punctuality Card -->
+                        <div class="col-xl-8 col-lg-7">
+                            <div class="card border-0 shadow-sm h-100">
+                                <div class="card-header bg-gradient-primary text-white border-0">
+                                    <h5 class="mb-0">
+                                        <i class="fa fa-clock me-2" title="Punctuality"/>Punctuality Analysis
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="punctuality-stat text-center">
+                                                <div class="punct-icon mb-2">
+                                                    <div class="avatar-sm bg-warning bg-opacity-10 rounded-circle mx-auto d-flex align-items-center justify-content-center">
+                                                        <i class="fa fa-clock text-warning fa-lg" title="Late Arrivals"/>
+                                                    </div>
+                                                </div>
+                                                <h4 class="text-warning mb-1">
+                                                    <field name="late_arrivals_today"/>
+                                                </h4>
+                                                <p class="text-muted mb-2">Late Arrivals</p>
+                                                <button name="action_view_late_arrivals_today" type="object" 
+                                                        class="btn btn-outline-warning btn-sm">
+                                                    <i class="fa fa-search me-1"/>Review
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="punctuality-stat text-center">
+                                                <div class="punct-icon mb-2">
+                                                    <div class="avatar-sm bg-secondary bg-opacity-10 rounded-circle mx-auto d-flex align-items-center justify-content-center">
+                                                        <i class="fa fa-sign-out-alt text-secondary fa-lg" title="Early Departures"/>
+                                                    </div>
+                                                </div>
+                                                <h4 class="text-secondary mb-1">
+                                                    <field name="early_leaves_today"/>
+                                                </h4>
+                                                <p class="text-muted mb-2">Early Departures</p>
+                                                <button name="action_view_early_leaves_today" type="object" 
+                                                        class="btn btn-outline-secondary btn-sm">
+                                                    <i class="fa fa-search me-1"/>Review
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Quick Stats Card -->
+                        <div class="col-xl-4 col-lg-5">
+                            <div class="card border-0 shadow-sm h-100">
+                                <div class="card-header bg-gradient-secondary text-white border-0">
+                                    <h5 class="mb-0">
+                                        <i class="fa fa-tachometer-alt me-2"/>Quick Stats
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="quick-stats">
+                                        <div class="stat-item d-flex justify-content-between align-items-center mb-3">
+                                            <div>
+                                                <i class="fa fa-users text-primary me-2"/>
+                                                <span class="text-muted">Total Employees</span>
+                                            </div>
+                                            <span class="fw-bold text-primary">
+                                                <field name="total_employees"/>
+                                            </span>
+                                        </div>
+                                        <div class="stat-item d-flex justify-content-between align-items-center mb-3">
+                                            <div>
+                                                <i class="fa fa-calendar-week text-info me-2"/>
+                                                <span class="text-muted">This Week</span>
+                                            </div>
+                                            <span class="fw-bold text-info">
+                                                <field name="attendance_this_week" widget="percentage"/>
+                                            </span>
+                                        </div>
+                                        <div class="stat-item d-flex justify-content-between align-items-center mb-3">
+                                            <div>
+                                                <i class="fa fa-calendar-alt text-success me-2"/>
+                                                <span class="text-muted">This Month</span>
+                                            </div>
+                                            <span class="fw-bold text-success">
+                                                <field name="attendance_this_month" widget="percentage"/>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Center -->
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-gradient-dark text-white border-0">
+                            <h5 class="mb-0">
+                                <i class="fa fa-bolt me-2"/>Action Center
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <div class="col-lg-3 col-md-6">
+                                    <button name="action_view_detailed_attendance" type="object" 
+                                            class="btn btn-outline-primary btn-lg w-100 h-100 d-flex flex-column align-items-center justify-content-center">
+                                        <i class="fa fa-table fa-2x mb-2"/>
+                                        <span>All Records</span>
+                                    </button>
+                                </div>
+                                <div class="col-lg-3 col-md-6">
+                                    <button name="%(action_attendance_today_present)d" type="action" 
+                                            class="btn btn-outline-success btn-lg w-100 h-100 d-flex flex-column align-items-center justify-content-center">
+                                        <i class="fa fa-check-circle fa-2x mb-2"/>
+                                        <span>Present Details</span>
+                                    </button>
+                                </div>
+                                <div class="col-lg-3 col-md-6">
+                                    <button name="%(action_quarantine_records)d" type="action" 
+                                            class="btn btn-outline-warning btn-lg w-100 h-100 d-flex flex-column align-items-center justify-content-center">
+                                        <i class="fa fa-exclamation-circle fa-2x mb-2"/>
+                                        <span>Quarantine</span>
+                                    </button>
+                                </div>
+                                <div class="col-lg-3 col-md-6">
+                                    <button name="%(action_zkteco_adms_config)d" type="action" 
+                                            class="btn btn-outline-info btn-lg w-100 h-100 d-flex flex-column align-items-center justify-content-center">
+                                        <i class="fa fa-cogs fa-2x mb-2"/>
+                                        <span>Settings</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    
+    <!-- Simplified Dashboard Kanban View -->
+    <record id="view_attendance_dashboard_kanban" model="ir.ui.view">
+        <field name="name">zkteco.attendance.dashboard.kanban</field>
+        <field name="model">zkteco.attendance.dashboard</field>
+        <field name="arch" type="xml">
+            <kanban class="o_kanban_dashboard" create="false" delete="false">
+                <field name="present_today"/>
+                <field name="absent_today"/>
+                <field name="missed_punch_today"/>
+                <field name="on_leave_today"/>
+                <field name="total_employees"/>
+                <field name="late_arrivals_today"/>
+                <field name="early_leaves_today"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="oe_kanban_global_click">
+                            <div class="o_kanban_card_header">
+                                <div class="o_kanban_card_header_title">
+                                    <div class="o_primary">Attendance Dashboard</div>
+                                    <div class="text-muted">Today's Overview</div>
+                                </div>
+                            </div>
+                            <div class="container o_kanban_card_content">
+                                <div class="row">
+                                    <div class="col-6 o_kanban_primary_left">
+                                        <button type="object" name="action_view_present_today" class="btn btn-primary">
+                                            <span class="o_value"><t t-esc="record.present_today.value"/></span>
+                                            <span class="o_label">Present</span>
+                                        </button>
+                                    </div>
+                                    <div class="col-6 o_kanban_primary_right">
+                                        <button type="object" name="action_view_absent_today" class="btn btn-secondary">
+                                            <span class="o_value"><t t-esc="record.absent_today.value"/></span>
+                                            <span class="o_label">Absent</span>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-6">
+                                        <button type="object" name="action_view_missed_punch_today" class="btn btn-warning btn-sm">
+                                            <t t-esc="record.missed_punch_today.value"/> Missed Punch
+                                        </button>
+                                    </div>
+                                    <div class="col-6">
+                                        <span class="badge badge-info">
+                                            <t t-esc="record.on_leave_today.value"/> On Leave
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="row mt-2">
+                                    <div class="col-12">
+                                        <button type="object" name="action_view_detailed_attendance" class="btn btn-outline-primary btn-sm btn-block">
+                                            View All Records
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- Dashboard Action -->
+    <record id="action_attendance_dashboard" model="ir.actions.act_window">
+        <field name="name">Attendance Dashboard</field>
+        <field name="res_model">zkteco.attendance.dashboard</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_attendance_dashboard_form"/>
+        <field name="res_id" ref="default_attendance_dashboard"/>
+        <field name="target">current</field>
+        <field name="context">{}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Attendance Dashboard
+            </p>
+            <p>
+                Get a complete overview of today's attendance, including present, absent, 
+                and missed punch employees at a glance.
+            </p>
+        </field>
+    </record>
+
+    <!-- Dashboard Menu (Top Level) -->
+    <menuitem id="menu_attendance_dashboard"
+              name="Attendance Records"
+              parent="hr_attendance.menu_hr_attendance_root"
+              action="action_attendance_dashboard"
+              sequence="1"/>
+              
+    <!-- Submenu for detailed records under the dashboard -->
+    <menuitem id="menu_detailed_attendance_records"
+              name="Detailed Records"
+              parent="menu_attendance_dashboard"
+              action="action_detailed_attendance_report"
+              sequence="10"/>
+
+</odoo>

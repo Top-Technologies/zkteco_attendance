@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Manual / Power Outage Present Wizard Form View -->
+    <record id="view_manual_present_wizard_form" model="ir.ui.view">
+        <field name="name">zkteco.manual.present.wizard.form</field>
+        <field name="model">zkteco.manual.present.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Conditional / Power Outage Mass Present">
+                <sheet>
+                    <div class="alert alert-info" role="alert">
+                        Use this action to mark selected employee records as <strong>Present</strong> during emergency events (e.g. power outage, device maintenance, or network failure).
+                    </div>
+                    <group>
+                        <group string="Override Reason">
+                            <field name="reason_type" widget="radio"/>
+                            <field name="reason_details" placeholder="e.g., Generator failure from 9 AM to 1 PM"/>
+                        </group>
+                        <group string="Attendance &amp; Hours Options">
+                            <field name="grant_full_hours"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Target Attendance Records">
+                            <field name="record_ids" readonly="1">
+                                <list string="Selected Records">
+                                    <field name="date"/>
+                                    <field name="employee_id"/>
+                                    <field name="department_id"/>
+                                    <field name="status" widget="badge"/>
+                                    <field name="expected_hours" widget="float_time"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <footer>
+                    <button name="action_apply_bulk_present" string="Apply Conditional Present" type="object" class="btn-primary" icon="fa-bolt"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Contextual Action bound to zkteco.attendance.record - Admin only -->
+    <record id="action_manual_present_wizard" model="ir.actions.act_window">
+        <field name="name">Conditional / Power Outage Present</field>
+        <field name="res_model">zkteco.manual.present.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="binding_model_id" ref="model_zkteco_attendance_record"/>
+        <field name="binding_view_types">list</field>
+        <field name="groups_id" eval="[(4, ref('zkteco_attendance.group_zkteco_admin'))]"/>
+    </record>
+</odoo>

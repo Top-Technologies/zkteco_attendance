@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_zkteco_monthly_attendance_form" model="ir.ui.view">
+        <field name="name">zkteco.monthly.attendance.form</field>
+        <field name="model">zkteco.monthly.attendance</field>
+        <field name="arch" type="xml">
+            <form string="Monthly Attendance Summary">
+                <header>
+                    <button name="action_compute" string="Compute Statistics" type="object" class="oe_highlight" invisible="state != 'draft'"/>
+                    <button name="action_submit" string="Submit to Manager" type="object" class="oe_highlight" invisible="state != 'draft'"/>
+                    <button name="action_manager_approve" string="Manager Approve" type="object" class="oe_highlight" invisible="state != 'manager_approve'"/>
+                    <button name="action_hr_approve" string="HR Approve" type="object" class="oe_highlight" groups="hr.group_hr_manager" invisible="state != 'hr_approve'"/>
+                    <button name="action_reject" string="Reject" type="object" invisible="state in ('draft', 'approved', 'rejected')"/>
+                    <button name="action_set_to_draft" string="Set to Draft" type="object" invisible="state != 'rejected'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,manager_approve,hr_approve,approved"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="employee_id" readonly="state != 'draft'"/>
+                            <field name="department_id"/>
+                            <field name="manager_id"/>
+                        </group>
+                        <group>
+                            <field name="month" readonly="state != 'draft'"/>
+                            <field name="year" readonly="state != 'draft'"/>
+                        </group>
+                    </group>
+                    <group string="Statistics">
+                        <group>
+                            <field name="overtime_hours" readonly="state != 'draft'"/>
+                            <field name="late_minutes" readonly="state != 'draft'"/>
+                        </group>
+                        <group>
+                            <field name="absent_days" readonly="state != 'draft'"/>
+                        </group>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_zkteco_monthly_attendance_tree" model="ir.ui.view">
+        <field name="name">zkteco.monthly.attendance.tree</field>
+        <field name="model">zkteco.monthly.attendance</field>
+        <field name="arch" type="xml">
+            <list string="Monthly Attendance Summary" decoration-info="state == 'draft'" decoration-warning="state in ('manager_approve', 'hr_approve')" decoration-success="state == 'approved'" decoration-danger="state == 'rejected'">
+                <field name="employee_id"/>
+                <field name="month"/>
+                <field name="year"/>
+                <field name="overtime_hours" widget="float_time"/>
+                <field name="late_minutes"/>
+                <field name="absent_days"/>
+                <field name="state" widget="badge" 
+                       decoration-info="state == 'draft'" 
+                       decoration-warning="state in ('manager_approve', 'hr_approve')" 
+                       decoration-success="state == 'approved'" 
+                       decoration-danger="state == 'rejected'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_zkteco_monthly_attendance" model="ir.actions.act_window">
+        <field name="name">Monthly Attendance Approvals</field>
+        <field name="res_model">zkteco.monthly.attendance</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_pending': 1}</field>
+    </record>
+
+    <menuitem id="menu_zkteco_monthly_attendance" 
+              name="Monthly Approvals" 
+              parent="zkteco_attendance.menu_zkteco_reports_parent" 
+              action="action_zkteco_monthly_attendance" 
+              sequence="50"
+              groups="hr.group_hr_user"/>
+</odoo>

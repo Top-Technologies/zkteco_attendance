@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_employee_form_inherit_zkteco" model="ir.ui.view">
+        <field name="name">hr.employee.form.inherit.zkteco</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook/page[@name='hr_settings']" position="inside">
+                <group string="ZKTeco Attendance" groups="zkteco_attendance.group_zkteco_user">
+                    <field name="zkteco_device_id"/>
+                    <field name="branch_id"/>
+                    <field name="work_policy_id"/>
+                </group>
+            </xpath>
+            <xpath expr="//notebook" position="inside">
+                <page string="Attendance History" name="attendance_history" groups="zkteco_attendance.group_zkteco_user">
+                    <field name="monthly_attendance_ids">
+                        <list string="Monthly Attendance" create="false" decoration-info="state == 'draft'" decoration-warning="state in ('manager_approve', 'hr_approve')" decoration-success="state == 'approved'" decoration-danger="state == 'rejected'">
+                            <field name="month"/>
+                            <field name="year"/>
+                            <field name="overtime_hours" widget="float_time"/>
+                            <field name="late_minutes"/>
+                            <field name="absent_days"/>
+                            <field name="state" widget="badge" 
+                                   decoration-info="state == 'draft'" 
+                                   decoration-warning="state in ('manager_approve', 'hr_approve')" 
+                                   decoration-success="state == 'approved'" 
+                                   decoration-danger="state == 'rejected'"/>
+                            <button name="action_compute" string="Compute" type="object" icon="fa-refresh" invisible="state != 'draft'"/>
+                            <button name="action_submit" string="Submit" type="object" icon="fa-paper-plane" class="btn-primary" invisible="state != 'draft'"/>
+                            <button name="action_manager_approve" string="Mgr Approve" type="object" icon="fa-check" class="btn-success" invisible="state != 'manager_approve'"/>
+                            <button name="action_hr_approve" string="HR Approve" type="object" icon="fa-check-circle" class="btn-success" invisible="state != 'hr_approve'" groups="hr.group_hr_manager"/>
+                        </list>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Inherit Employee Search View -->
+    <record id="view_employee_filter_inherit_zkteco" model="ir.ui.view">
+        <field name="name">hr.employee.search.inherit.zkteco</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//search" position="inside">
+                <field name="branch_id"/>
+            </xpath>
+            <xpath expr="//group" position="inside">
+                <filter string="Branch" name="group_branch" context="{'group_by': 'branch_id'}"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Inherit Employee List View -->
+    <record id="view_employee_tree_inherit_zkteco" model="ir.ui.view">
+        <field name="name">hr.employee.tree.inherit.zkteco</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='department_id']" position="after">
+                <field name="branch_id" optional="show" groups="zkteco_attendance.group_zkteco_user"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

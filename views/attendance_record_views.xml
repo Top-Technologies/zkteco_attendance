@@ -1,0 +1,386 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Attendance Record Tree View -->
+    <record id="view_attendance_record_tree" model="ir.ui.view">
+        <field name="name">zkteco.attendance.record.tree</field>
+        <field name="model">zkteco.attendance.record</field>
+        <field name="arch" type="xml">
+            <list string="Daily Attendance Records" 
+                  decoration-success="status == 'present'"
+                  decoration-danger="status == 'absent'"
+                  decoration-warning="status == 'missed_punch'"
+                  decoration-info="status == 'on_leave'"
+                  create="false">
+                <header>
+                    <button name="action_fetch_logs" type="object" string="Fetch Logs" class="btn-primary" icon="fa-cloud-download"/>
+                    <button name="action_refresh_time_off" type="object" string="Check Time Off" class="btn-secondary" icon="fa-calendar-check-o"/>
+                </header>
+                <field name="date"/>
+                <field name="employee_id"/>
+                <field name="employee_branch_id" string="Branch" optional="show"/>
+                <field name="department_id"/>
+                <field name="leave_type_id" string="Time Off Type" optional="show"/>
+                <field name="is_paid_leave" string="Paid Time Off" widget="boolean" optional="hide"/>
+                <field name="status" invisible="1"/>
+                <field name="missed_punch_type" invisible="1"/>
+                <field name="status_display" string="Status" widget="badge" 
+                       decoration-success="status == 'present'"
+                       decoration-danger="status == 'absent'"
+                       decoration-warning="status == 'missed_punch'"
+                       decoration-info="status == 'on_leave'"/>
+                <field name="first_checkin" widget="datetime"/>
+                <field name="last_checkout" widget="datetime"/>
+                <field name="worked_hours" widget="float_time"/>
+                <field name="overtime_hours" widget="float_time"/>
+                <field name="expected_hours" widget="float_time"/>
+                <field name="shift_id"/>
+                <field name="late_minutes_display" string="Late Minutes" decoration-danger="late_minutes &gt; 0" class="fw-bold"/>
+                <field name="late_minutes" sum="Total Late Minutes" string="Late (Mins)" decoration-danger="late_minutes &gt; 0" optional="show"/>
+                <field name="is_late" widget="boolean" optional="hide"/>
+                <field name="is_early_leave" widget="boolean" optional="hide"/>
+                <field name="is_wrong_shift" string="Wrong Shift" widget="boolean" decoration-danger="is_wrong_shift" class="fw-bold text-danger"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Attendance Record Form View -->
+    <record id="view_attendance_record_form" model="ir.ui.view">
+        <field name="name">zkteco.attendance.record.form</field>
+        <field name="model">zkteco.attendance.record</field>
+        <field name="arch" type="xml">
+            <form string="Attendance Record">
+                <header>
+                    <button name="action_view_attendances" string="View Punch Records" type="object" 
+                            class="oe_highlight" invisible="attendance_count == 0"/>
+                    <button name="action_mark_present" string="Mark Present" type="object" 
+                            invisible="status == 'present'" 
+                            confirm="This will create a default attendance record. Continue?"/>
+                    <button name="action_mark_absent" string="Mark Absent" type="object" 
+                            invisible="status == 'absent'"/>
+                    <button name="action_refresh_time_off" string="Check Time Off" type="object" 
+                            icon="fa-calendar-check-o" class="btn-secondary"/>
+                    <field name="status" widget="statusbar" 
+                           statusbar_visible="present,missed_punch,absent,on_leave"
+                           options="{'clickable': '1'}"/>
+                </header>
+
+                <sheet>
+                    <field name="is_wrong_shift" invisible="1"/>
+                    <div class="alert alert-danger mb-3" role="alert" invisible="not is_wrong_shift">
+                        <strong>Warning!</strong> This employee checked in more than 6 hours away from their assigned shift's expected start time. They may be working the wrong shift.
+                    </div>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_attendances" type="object" 
+                                class="oe_stat_button" icon="fa-clock-o">
+                            <field name="attendance_count" widget="statinfo" string="Punches"/>
+                        </button>
+                    </div>
+                    
+                    <group>
+                        <group string="Employee Information">
+                            <field name="employee_id" options="{'no_create': True}"/>
+                            <field name="date"/>
+                            <field name="department_id" readonly="1"/>
+                            <field name="job_id" readonly="1"/>
+                        </group>
+                        <group string="Attendance Status">
+                            <field name="total_punches"/>
+                            <field name="first_checkin" widget="datetime"/>
+                            <field name="last_checkout" widget="datetime"/>
+                            <field name="missed_punch_type" invisible="status != 'missed_punch'" widget="badge" decoration-warning="1"/>
+                        </group>
+                    </group>
+                    
+                    <group>
+                        <group string="Working Hours">
+                            <field name="worked_hours" widget="float_time"/>
+                            <field name="overtime_hours" widget="float_time"/>
+                            <field name="expected_hours" widget="float_time"/>
+                            <field name="shift_id"/>
+                            <field name="shift_start" widget="float_time" readonly="1"/>
+                            <field name="shift_end" widget="float_time" readonly="1"/>
+                        </group>
+                        <group string="Punctuality">
+                            <field name="is_late" widget="boolean"/>
+                            <field name="late_minutes_display" invisible="late_minutes == 0"/>
+                            <field name="late_minutes" invisible="1"/>
+                            <field name="is_early_leave" widget="boolean"/>
+                            <field name="early_leave_minutes" invisible="not is_early_leave"/>
+                        </group>
+                    </group>
+                    
+                    <group string="Time Off Details" invisible="not leave_id">
+                        <group>
+                            <field name="leave_id"/>
+                            <field name="leave_type_id"/>
+                            <field name="leave_state" widget="badge"
+                                   decoration-success="leave_state == 'validate'"
+                                   decoration-info="leave_state in ('confirm', 'validate1')"/>
+                        </group>
+                        <group>
+                            <field name="is_half_day_leave"/>
+                            <field name="leave_period" invisible="not is_half_day_leave"/>
+                            <field name="is_paid_leave"/>
+                        </group>
+                    </group>
+                    
+                    <group string="Remarks">
+                        <field name="remarks" nolabel="1"/>
+                    </group>
+
+                    <notebook>
+                        <page string="Attendance Records">
+                            <field name="attendance_ids" readonly="1">
+                                <list>
+                                    <field name="check_in"/>
+                                    <field name="check_out"/>
+                                    <field name="worked_hours" widget="float_time"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Employee History">
+                            <field name="employee_history_ids" readonly="1">
+                                <list string="Employee History" create="false">
+                                    <field name="date"/>
+                                    <field name="status" widget="badge"
+                                           decoration-success="status == 'present'"
+                                           decoration-danger="status == 'absent'"
+                                           decoration-warning="status == 'missed_punch'"
+                                           decoration-info="status == 'on_leave'"/>
+                                    <field name="worked_hours" widget="float_time"/>
+                                    <field name="is_late" widget="boolean"/>
+                                    <field name="is_early_leave" widget="boolean"/>
+                                    <field name="remarks"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Attendance Record Kanban View -->
+    <record id="view_attendance_record_kanban" model="ir.ui.view">
+        <field name="name">zkteco.attendance.record.kanban</field>
+        <field name="model">zkteco.attendance.record</field>
+        <field name="arch" type="xml">
+            <kanban class="o_kanban_mobile" create="false">
+                <field name="employee_id"/>
+                <field name="date"/>
+                <field name="status"/>
+                <field name="first_checkin"/>
+                <field name="last_checkout"/>
+                <field name="worked_hours"/>
+                <field name="color"/>
+                <templates>
+                    <t t-name="card">
+                        <div t-attf-class="oe_kanban_global_click oe_kanban_color_#{kanban_getcolor(record.color.raw_value)}">
+                            <div class="o_kanban_record_top">
+                                <div class="o_kanban_record_headings">
+                                    <strong class="o_kanban_record_title">
+                                        <field name="employee_id"/>
+                                    </strong>
+                                    <div class="o_kanban_record_subtitle">
+                                        <field name="date"/>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="o_kanban_record_body">
+                                <div>
+                                    <span class="badge" 
+                                          t-attf-class="badge-#{record.status.raw_value == 'present' ? 'success' : (record.status.raw_value == 'absent' ? 'danger' : (record.status.raw_value == 'missed_punch' ? 'warning' : 'info'))}">
+                                        <field name="status_display"/>
+                                    </span>
+                                </div>
+                                <div t-if="record.first_checkin.raw_value">
+                                    <i class="fa fa-sign-in" title="Check In"/> <field name="first_checkin" widget="datetime"/>
+                                </div>
+                                <div t-if="record.last_checkout.raw_value">
+                                    <i class="fa fa-sign-out" title="Check Out"/> <field name="last_checkout" widget="datetime"/>
+                                </div>
+                                <div t-if="record.worked_hours.raw_value">
+                                    <i class="fa fa-clock-o" title="Worked Hours"/> <field name="worked_hours" widget="float_time"/> hours
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- Attendance Record Calendar View -->
+    <record id="view_attendance_record_calendar" model="ir.ui.view">
+        <field name="name">zkteco.attendance.record.calendar</field>
+        <field name="model">zkteco.attendance.record</field>
+        <field name="arch" type="xml">
+            <calendar string="Attendance Calendar" 
+                      date_start="date"
+                      color="color"
+                      mode="month"
+                      quick_create="0">
+                <field name="employee_id"/>
+                <field name="status"/>
+                <field name="worked_hours"/>
+            </calendar>
+        </field>
+    </record>
+
+    <!-- Attendance Record Pivot View -->
+    <record id="view_attendance_record_pivot" model="ir.ui.view">
+        <field name="name">zkteco.attendance.record.pivot</field>
+        <field name="model">zkteco.attendance.record</field>
+        <field name="arch" type="xml">
+            <pivot string="Attendance Analysis">
+                <field name="date" type="row" interval="month"/>
+                <field name="department_id" type="row"/>
+                <field name="status" type="col"/>
+                <field name="worked_hours" type="measure"/>
+                <field name="late_minutes" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <!-- Attendance Record Graph View -->
+    <record id="view_attendance_record_graph" model="ir.ui.view">
+        <field name="name">zkteco.attendance.record.graph</field>
+        <field name="model">zkteco.attendance.record</field>
+        <field name="arch" type="xml">
+            <graph string="Attendance Statistics" type="bar">
+                <field name="date" interval="week"/>
+                <field name="status" type="col"/>
+            </graph>
+        </field>
+    </record>
+
+    <!-- Attendance Record Search View -->
+    <record id="view_attendance_record_search" model="ir.ui.view">
+        <field name="name">zkteco.attendance.record.search</field>
+        <field name="model">zkteco.attendance.record</field>
+        <field name="arch" type="xml">
+            <search string="Search Attendance Records">
+                <field name="employee_id"/>
+                <field name="date"/>
+                <field name="department_id"/>
+                <field name="employee_branch_id" string="Branch"/>
+                <field name="status"/>
+                <field name="leave_type_id" string="Time Off Type"/>
+                
+                <filter name="filter_present" string="Present" domain="[('status', '=', 'present')]"/>
+                <filter name="filter_absent" string="Absent" domain="[('status', '=', 'absent')]"/>
+                <filter name="filter_missed_punch" string="Missed Punch (All)" domain="[('status', '=', 'missed_punch')]"/>
+                <filter name="filter_missed_morning" string="Missed Morning Punch" domain="[('status', '=', 'missed_punch'), ('missed_punch_type', '=', 'morning')]"/>
+                <filter name="filter_missed_afternoon" string="Missed Afternoon Punch" domain="[('status', '=', 'missed_punch'), ('missed_punch_type', '=', 'afternoon')]"/>
+                <filter name="filter_on_leave" string="On Leave (All)" domain="[('status', '=', 'on_leave')]"/>
+                <filter name="filter_paid_leave" string="Paid Time Off" domain="[('status', '=', 'on_leave'), ('is_paid_leave', '=', True)]"/>
+                <filter name="filter_unpaid_leave" string="Unpaid Time Off" domain="[('status', '=', 'on_leave'), ('is_paid_leave', '=', False)]"/>
+                <separator/>
+                <filter name="filter_wrong_shift" string="Wrong Shift Anomaly" domain="[('is_wrong_shift', '=', True)]"/>
+                
+                <separator/>
+                <filter name="filter_has_punches" string="Has Punches" domain="[('total_punches', '>', 0)]"/>
+                <filter name="filter_no_punches" string="No Punches" domain="[('total_punches', '=', 0)]"/>
+                <filter name="filter_today" string="Today" 
+                        domain="[('date', '=', context_today().strftime('%Y-%m-%d'))]"/>
+                <filter name="filter_yesterday" string="Yesterday" 
+                        domain="[('date', '=', (context_today() - datetime.timedelta(days=1)).strftime('%Y-%m-%d'))]"/>
+                <filter name="filter_this_week" string="This Week" 
+                        domain="[('date', '&gt;=', (context_today() - datetime.timedelta(days=context_today().weekday())).strftime('%Y-%m-%d'))]"/>
+                <filter name="filter_this_month" string="This Month" 
+                        domain="[('date', '&gt;=', context_today().strftime('%Y-%m-01'))]"/>
+                
+                <separator/>
+                <filter name="filter_late" string="Late Arrivals" domain="[('is_late', '=', True)]"/>
+                <filter name="filter_early_leave" string="Early Leaves" domain="[('is_early_leave', '=', True)]"/>
+                <filter name="filter_overtime" string="Overtime" domain="[('overtime_hours', '>', 0.0)]"/>
+                
+                <group expand="0" string="Group By">
+                    <filter name="group_date" string="Date" context="{'group_by': 'date'}"/>
+                    <filter name="group_employee" string="Employee" context="{'group_by': 'employee_id'}"/>
+                    <filter name="group_branch" string="Branch" context="{'group_by': 'employee_branch_id'}"/>
+                    <filter name="group_department" string="Department" context="{'group_by': 'department_id'}"/>
+                    <filter name="group_status" string="Status" context="{'group_by': 'status'}"/>
+                    <filter name="group_leave_type" string="Time Off Type" context="{'group_by': 'leave_type_id'}"/>
+                    <filter name="group_shift" string="Shift" context="{'group_by': 'shift_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Attendance Record Action -->
+    <record id="action_attendance_record" model="ir.actions.act_window">
+        <field name="name">Attendance History</field>
+        <field name="res_model">zkteco.attendance.record</field>
+        <field name="view_mode">list,kanban,form,calendar,pivot,graph</field>
+        <field name="context">{'search_default_filter_today': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Attendance Tracking
+            </p>
+            <p>
+                View the full history of attendance for all employees.
+                Use the filters at the top to view specific dates or statuses.
+            </p>
+        </field>
+    </record>
+
+    <!-- Dashboard Actions for Quick Access -->
+    <record id="action_attendance_today_present" model="ir.actions.act_window">
+        <field name="name">Present Today</field>
+        <field name="res_model">zkteco.attendance.record</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="domain">[('date', '=', context_today().strftime('%Y-%m-%d')), ('status', '=', 'present')]</field>
+        <field name="context">{'search_default_filter_present': 1}</field>
+    </record>
+
+    <record id="action_attendance_today_absent" model="ir.actions.act_window">
+        <field name="name">Absent Today</field>
+        <field name="res_model">zkteco.attendance.record</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="domain">[('date', '=', context_today().strftime('%Y-%m-%d')), ('status', '=', 'absent')]</field>
+        <field name="context">{'search_default_filter_absent': 1}</field>
+    </record>
+
+    <record id="action_attendance_today_missed_punch" model="ir.actions.act_window">
+        <field name="name">Missed Punch Today</field>
+        <field name="res_model">zkteco.attendance.record</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="domain">[('date', '=', context_today().strftime('%Y-%m-%d')), ('status', '=', 'missed_punch')]</field>
+        <field name="context">{'search_default_filter_missed_punch': 1}</field>
+    </record>
+
+    <!-- Main Menu -->
+    <menuitem id="menu_attendance_record"
+              name="Daily Summary"
+              parent="menu_zkteco_root"
+              action="action_attendance_record"
+              sequence="20"/>
+
+    <!-- Server Action to Sync Shifts -->
+    <record id="action_server_sync_shifts" model="ir.actions.server">
+        <field name="name">Sync Assigned Shifts</field>
+        <field name="model_id" ref="model_zkteco_attendance_record"/>
+        <field name="binding_model_id" ref="model_zkteco_attendance_record"/>
+        <field name="binding_view_types">list</field>
+        <field name="state">code</field>
+        <field name="code">
+            if records:
+                records.action_sync_assigned_shifts()
+        </field>
+    </record>
+
+    <!-- Server Action to Check / Refresh Time Off -->
+    <record id="action_server_refresh_time_off" model="ir.actions.server">
+        <field name="name">Check / Refresh Time Off</field>
+        <field name="model_id" ref="model_zkteco_attendance_record"/>
+        <field name="binding_model_id" ref="model_zkteco_attendance_record"/>
+        <field name="binding_view_types">list,form</field>
+        <field name="state">code</field>
+        <field name="code">
+            action = records.action_refresh_time_off()
+        </field>
+    </record>
+
+</odoo>

@@ -1,0 +1,285 @@
+/* ZKTeco Attendance Dashboard - Enhanced Styles */
+
+.o_attendance_dashboard_modern {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    min-height: 100vh;
+}
+
+/* ADMS Config Modern Styles */
+.o_adms_config_modern {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    min-height: 100vh;
+}
+
+.o_adms_config_modern .bg-gradient-primary {
+    background: linear-gradient(135deg, #007bff, #0056b3) !important;
+    border-radius: 15px !important;
+    box-shadow: 0 8px 25px rgba(0, 123, 255, 0.15);
+}
+
+.o_adms_config_modern .bg-gradient-secondary {
+    background: linear-gradient(135deg, #6c757d, #495057) !important;
+}
+
+.tool-card {
+    transition: all 0.3s ease;
+    background: white;
+}
+
+.hover-shadow:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1) !important;
+}
+
+.status-panel {
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef) !important;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.step-card {
+    transition: all 0.3s ease;
+}
+
+.step-card:hover {
+    transform: translateX(5px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.help-item {
+    padding: 0.75rem;
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.02);
+    border-left: 3px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.help-item:hover {
+    background: rgba(0, 123, 255, 0.05);
+    border-left-color: #007bff;
+}
+
+.o_dashboard_header {
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    border-radius: 15px;
+    padding: 20px;
+    color: white;
+    margin-bottom: 30px;
+    box-shadow: 0 8px 25px rgba(0, 123, 255, 0.15);
+}
+
+.o_dashboard_cards .card {
+    transition: all 0.3s ease;
+    border-radius: 15px;
+    overflow: hidden;
+}
+
+.card-hover:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+}
+
+.avatar-icon {
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.stat-value {
+    font-size: 2.5rem !important;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.stat-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+}
+
+.stat-change .badge {
+    font-size: 0.7rem;
+    padding: 0.35em 0.65em;
+}
+
+/* Status Indicators */
+.status-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 8px;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+
+.avatar-sm {
+    width: 50px;
+    height: 50px;
+}
+
+/* Progress Circles */
+.progress-circle {
+    position: relative;
+    display: inline-block;
+    width: 80px;
+    height: 80px;
+}
+
+.progress-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-weight: bold;
+    font-size: 14px;
+}
+
+/* Card Headers with Gradients */
+.bg-gradient-primary {
+    background: linear-gradient(135deg, #007bff, #0056b3) !important;
+}
+
+.bg-gradient-secondary {
+    background: linear-gradient(135deg, #6c757d, #495057) !important;
+}
+
+.bg-gradient-dark {
+    background: linear-gradient(135deg, #343a40, #212529) !important;
+}
+
+/* Action Center Buttons */
+.btn-lg.d-flex.flex-column {
+    padding: 1.5rem 1rem;
+    height: 120px;
+    transition: all 0.3s ease;
+    border-radius: 12px;
+}
+
+.btn-lg.d-flex.flex-column:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* Quick Stats */
+.quick-stats .stat-item {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.quick-stats .stat-item:last-child {
+    border-bottom: none;
+}
+
+/* Punctuality Stats */
+.punctuality-stat {
+    padding: 1rem;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    .o_dashboard_header {
+        text-align: center;
+        padding: 15px;
+    }
+    
+    .stat-value {
+        font-size: 2rem !important;
+    }
+    
+    .avatar-icon {
+        width: 50px;
+        height: 50px;
+    }
+    
+    .btn-lg.d-flex.flex-column {
+        height: 100px;
+        padding: 1rem 0.5rem;
+    }
+    
+    .tool-card {
+        margin-bottom: 1rem;
+    }
+    
+    .step-card {
+        margin-bottom: 1rem;
+    }
+}
+
+/* Loading Animation */
+.dashboard-loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 200px;
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #007bff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Theme Colors */
+.text-success { color: #28a745 !important; }
+.text-danger { color: #dc3545 !important; }
+.text-warning { color: #ffc107 !important; }
+.text-info { color: #17a2b8 !important; }
+.text-primary { color: #007bff !important; }
+
+.bg-success { background-color: #28a745 !important; }
+.bg-danger { background-color: #dc3545 !important; }
+.bg-warning { background-color: #ffc107 !important; }
+.bg-info { background-color: #17a2b8 !important; }
+.bg-primary { background-color: #007bff !important; }
+
+/* Hover Effects */
+.card:hover {
+    box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+}
+
+/* Dashboard Specific */
+.o_form_view.o_attendance_dashboard_modern .o_form_sheet_bg {
+    background: transparent;
+    box-shadow: none;
+    border: none;
+}
+
+.o_form_view.o_attendance_dashboard_modern .o_form_sheet {
+    box-shadow: none;
+    background: transparent;
+}
+
+.o_form_view.o_adms_config_modern .o_form_sheet_bg {
+    background: transparent;
+    box-shadow: none;
+    border: none;
+}
+
+.o_form_view.o_adms_config_modern .o_form_sheet {
+    box-shadow: none;
+    background: transparent;
+}
