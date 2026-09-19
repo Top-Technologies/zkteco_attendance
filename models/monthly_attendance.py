@@ -90,9 +90,17 @@ class MonthlyAttendance(models.Model):
 
     def action_manager_approve(self):
         for record in self:
-            # Optionally check if user is manager or HR
-            if not self.env.user.has_group('hr.group_hr_user') and record.manager_id.user_id != self.env.user:
-                raise UserError(_("Only the employee's manager or HR can approve this."))
+            is_admin = (
+                self.env.user.has_group('hr.group_hr_user')
+                or self.env.user.has_group('zkteco_attendance.group_zkteco_admin')
+            )
+            is_subordinate = (
+                record.manager_id.user_id == self.env.user
+                or record.employee_id.leave_manager_id == self.env.user
+                or record.employee_id in self.env['hr.employee'].search([('id', 'child_of', self.env.user.employee_ids.ids)])
+            )
+            if not is_admin and not is_subordinate:
+                raise UserError(_("Only the employee's designated manager or an administrator can approve this."))
                 
             record.state = 'hr_approve'
             # Mark manager activities as done

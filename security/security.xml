@@ -28,7 +28,7 @@
         </record>
     </data>
 
-    <data noupdate="1">
+    <data noupdate="0">
         <!-- Record Rules: zkteco.attendance.record -->
         <record id="rule_zkteco_record_user" model="ir.rule">
             <field name="name">ZKTeco Record User</field>
@@ -38,10 +38,23 @@
         </record>
 
         <record id="rule_zkteco_record_manager" model="ir.rule">
-            <field name="name">ZKTeco Record Manager</field>
+            <field name="name">ZKTeco Record Manager (Subordinates Only)</field>
+            <field name="model_id" ref="model_zkteco_attendance_record"/>
+            <field name="domain_force">[
+                '|', '|', '|',
+                ('employee_id.user_id', '=', user.id),
+                ('employee_id', 'child_of', user.employee_ids.ids),
+                ('employee_id.parent_id.user_id', '=', user.id),
+                ('employee_id.leave_manager_id', '=', user.id)
+            ]</field>
+            <field name="groups" eval="[(4, ref('group_zkteco_manager'))]"/>
+        </record>
+
+        <record id="rule_zkteco_record_admin" model="ir.rule">
+            <field name="name">ZKTeco Record Administrator (All Records)</field>
             <field name="model_id" ref="model_zkteco_attendance_record"/>
             <field name="domain_force">[(1, '=', 1)]</field>
-            <field name="groups" eval="[(4, ref('group_zkteco_manager')), (4, ref('group_zkteco_admin'))]"/>
+            <field name="groups" eval="[(4, ref('group_zkteco_admin'))]"/>
         </record>
 
         <!-- Record Rules: zkteco.attendance (Punches) -->
@@ -53,10 +66,51 @@
         </record>
 
         <record id="rule_zkteco_attendance_manager" model="ir.rule">
-            <field name="name">ZKTeco Attendance Manager</field>
+            <field name="name">ZKTeco Attendance Manager (Subordinates Only)</field>
+            <field name="model_id" ref="model_zkteco_attendance"/>
+            <field name="domain_force">[
+                '|', '|', '|',
+                ('employee_id.user_id', '=', user.id),
+                ('employee_id', 'child_of', user.employee_ids.ids),
+                ('employee_id.parent_id.user_id', '=', user.id),
+                ('employee_id.leave_manager_id', '=', user.id)
+            ]</field>
+            <field name="groups" eval="[(4, ref('group_zkteco_manager'))]"/>
+        </record>
+
+        <record id="rule_zkteco_attendance_admin" model="ir.rule">
+            <field name="name">ZKTeco Attendance Administrator (All Records)</field>
             <field name="model_id" ref="model_zkteco_attendance"/>
             <field name="domain_force">[(1, '=', 1)]</field>
-            <field name="groups" eval="[(4, ref('group_zkteco_manager')), (4, ref('group_zkteco_admin'))]"/>
+            <field name="groups" eval="[(4, ref('group_zkteco_admin'))]"/>
+        </record>
+
+        <!-- Record Rules: zkteco.monthly.attendance -->
+        <record id="rule_zkteco_monthly_user" model="ir.rule">
+            <field name="name">ZKTeco Monthly Attendance User</field>
+            <field name="model_id" ref="model_zkteco_monthly_attendance"/>
+            <field name="domain_force">[('employee_id.user_id', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+        </record>
+
+        <record id="rule_zkteco_monthly_manager" model="ir.rule">
+            <field name="name">ZKTeco Monthly Attendance Manager (Subordinates Only)</field>
+            <field name="model_id" ref="model_zkteco_monthly_attendance"/>
+            <field name="domain_force">[
+                '|', '|', '|',
+                ('employee_id.user_id', '=', user.id),
+                ('employee_id', 'child_of', user.employee_ids.ids),
+                ('employee_id.parent_id.user_id', '=', user.id),
+                ('manager_id.user_id', '=', user.id)
+            ]</field>
+            <field name="groups" eval="[(4, ref('group_zkteco_manager'))]"/>
+        </record>
+
+        <record id="rule_zkteco_monthly_admin" model="ir.rule">
+            <field name="name">ZKTeco Monthly Attendance Administrator (All Records)</field>
+            <field name="model_id" ref="model_zkteco_monthly_attendance"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('group_zkteco_admin'))]"/>
         </record>
     </data>
 </odoo>

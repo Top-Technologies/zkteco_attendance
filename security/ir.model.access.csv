@@ -24,6 +24,7 @@ access_zkteco_attendance_dashboard_wizard_manager,zkteco.attendance.dashboard.wi
 access_zkteco_work_policy_manager,zkteco.work.policy,model_zkteco_work_policy,group_zkteco_manager,1,1,1,1
 
 
+access_zkteco_device_user,zkteco.device,model_zkteco_device,base.group_user,1,0,0,0
 access_zkteco_device_admin,zkteco.device,model_zkteco_device,group_zkteco_admin,1,1,1,1
 access_zkteco_mapping_admin,zkteco.user.mapping,model_zkteco_user_mapping,group_zkteco_admin,1,1,1,1
 access_zkteco_command_queue_admin,zkteco.command.queue,model_zkteco_command_queue,group_zkteco_admin,1,1,1,1
