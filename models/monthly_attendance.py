@@ -29,6 +29,7 @@ class MonthlyAttendance(models.Model):
     overtime_hours = fields.Float(string='Overtime Hours', tracking=True)
     late_minutes = fields.Integer(string='Late Minutes', tracking=True)
     absent_days = fields.Integer(string='Absent Days', tracking=True)
+    absent_hours = fields.Float(string='Absent Hours', tracking=True)
     
     state = fields.Selection([
         ('draft', 'Draft'),
@@ -72,7 +73,26 @@ class MonthlyAttendance(models.Model):
             
             record.overtime_hours = sum(attendance_records.mapped('overtime_hours'))
             record.late_minutes = sum(attendance_records.mapped('late_minutes'))
-            record.absent_days = len(attendance_records.filtered(lambda r: r.status == 'absent'))
+            absent_recs = attendance_records.filtered(lambda r: r.status == 'absent')
+            record.absent_days = len(absent_recs)
+            record.absent_hours = sum(absent_recs.mapped('absent_hours')) or (record.absent_days * 8.0)
+
+    def _sync_to_contract(self):
+        for record in self:
+            contract = self.env['hr.contract'].sudo().search([
+                ('employee_id', '=', record.employee_id.id),
+                ('state', 'in', ('open', 'draft')),
+            ], order='date_start desc', limit=1)
+            if contract:
+                vals = {}
+                if hasattr(contract, 'approved_absent_hours'):
+                    vals['approved_absent_hours'] = record.absent_hours or (record.absent_days * 8.0)
+                if hasattr(contract, 'approved_absent_days'):
+                    vals['approved_absent_days'] = record.absent_days
+                if hasattr(contract, 'ot_day_hours'):
+                    vals['ot_day_hours'] = record.overtime_hours
+                if vals:
+                    contract.sudo().write(vals)
 
     def action_submit(self):
         for record in self:
@@ -103,6 +123,7 @@ class MonthlyAttendance(models.Model):
                 raise UserError(_("Only the employee's designated manager or an administrator can approve this."))
                 
             record.state = 'hr_approve'
+            record._sync_to_contract()
             # Mark manager activities as done
             record.activity_feedback(['mail.mail_activity_data_todo'])
             
@@ -121,6 +142,7 @@ class MonthlyAttendance(models.Model):
     def action_hr_approve(self):
         for record in self:
             record.state = 'approved'
+            record._sync_to_contract()
             record.activity_feedback(['mail.mail_activity_data_todo'])
 
     def action_reject(self):

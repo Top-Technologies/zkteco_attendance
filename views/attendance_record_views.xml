@@ -33,6 +33,7 @@
                 <field name="worked_hours" widget="float_time"/>
                 <field name="overtime_hours" widget="float_time"/>
                 <field name="expected_hours" widget="float_time"/>
+                <field name="absent_hours" widget="float_time" optional="show"/>
                 <field name="shift_id"/>
                 <field name="late_minutes_display" string="Late Minutes" decoration-danger="late_minutes &gt; 0" class="fw-bold"/>
                 <field name="late_minutes" sum="Total Late Minutes" string="Late (Mins)" decoration-danger="late_minutes &gt; 0" optional="show"/>
@@ -96,6 +97,7 @@
                             <field name="worked_hours" widget="float_time"/>
                             <field name="overtime_hours" widget="float_time"/>
                             <field name="expected_hours" widget="float_time"/>
+                            <field name="absent_hours" widget="float_time" invisible="status != 'absent'"/>
                             <field name="shift_id"/>
                             <field name="shift_start" widget="float_time" readonly="1"/>
                             <field name="shift_end" widget="float_time" readonly="1"/>

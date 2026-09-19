@@ -54,6 +54,7 @@ class AttendanceRecord(models.Model):
     # Working Hours
     worked_hours = fields.Float(string='Worked Hours', compute='_compute_worked_hours', store=True, readonly=False)
     expected_hours = fields.Float(string='Expected Hours', compute='_compute_expected_hours', store=True, readonly=False, default=8.0)
+    absent_hours = fields.Float(string='Absent Hours', compute='_compute_absent_hours', store=True, readonly=False, default=0.0)
     
     # Time Off / Leave Information
     leave_id = fields.Many2one('hr.leave', string='Time Off Request', compute='_compute_leave_info', store=True, readonly=False)
@@ -205,49 +206,57 @@ class AttendanceRecord(models.Model):
                 total = max(0.0, delta.total_seconds() / 3600.0)
             record.worked_hours = round(total, 2)
 
-    @api.depends('last_checkout', 'worked_hours', 'expected_hours', 'employee_id.work_policy_id', 'shift_id.work_policy_id')
+    @api.depends('last_checkout', 'worked_hours', 'expected_hours', 'employee_id.work_policy_id', 'shift_id.work_policy_id', 'date')
     def _compute_overtime_hours(self):
-        """Compute overtime hours based on assigned work policy."""
+        """Compute overtime hours based on assigned work policy or worked hours exceeding expected hours."""
         for record in self:
             record.overtime_hours = 0.0
-            if not record.last_checkout:
+            if not record.last_checkout or record.worked_hours <= 0:
                 continue
-                
-            policy = record.employee_id.work_policy_id or record.shift_id.work_policy_id
+
+            # Rest day / weekend: all hours worked are overtime
+            is_weekend = record.date.weekday() in (5, 6) if record.date else False
+            if is_weekend:
+                record.overtime_hours = round(record.worked_hours, 2)
+                continue
+
+            exp = record.expected_hours if record.expected_hours > 0 else 8.0
+            policy = record.employee_id.work_policy_id or (record.shift_id.work_policy_id if record.shift_id else False)
             if not policy:
+                # Standard automatic OT: hours worked beyond expected shift hours
+                record.overtime_hours = round(max(0.0, record.worked_hours - exp), 2)
                 continue
-                
+
             if policy.policy_type == 'flexible':
-                record.overtime_hours = max(0.0, record.worked_hours - record.expected_hours)
+                record.overtime_hours = round(max(0.0, record.worked_hours - exp), 2)
             else:
                 # Regular, Night, or Other
-                # Convert UTC checkout to employee local time
                 timezone = record.employee_id.tz or record.env.user.tz or 'UTC'
                 import pytz
                 try:
                     tz = pytz.timezone(timezone)
                 except pytz.UnknownTimeZoneError:
                     tz = pytz.UTC
-                    
+
                 checkout_utc = pytz.utc.localize(record.last_checkout)
                 checkout_local = checkout_utc.astimezone(tz)
-                
                 checkout_hour = checkout_local.hour + checkout_local.minute / 60.0 + checkout_local.second / 3600.0
-                
-                # Check for day boundary cross (e.g. checked out next day)
+
                 days_diff = (checkout_local.date() - record.date).days
                 adjusted_checkout_hour = checkout_hour + (days_diff * 24.0)
-                
+
                 overtime_begin = policy.overtime_begin_time
                 end_t = policy.end_time
                 if end_t < policy.start_time:
-                    # Night shift: end time and overtime begin threshold cross midnight
                     end_t += 24.0
                     overtime_begin += 24.0
-                    
+
+                ot_by_time = 0.0
                 if adjusted_checkout_hour >= overtime_begin:
-                    # Only calculate overtime for the time spent AFTER the overtime_begin threshold (e.g., 18:00)
-                    record.overtime_hours = max(0.0, adjusted_checkout_hour - overtime_begin)
+                    ot_by_time = max(0.0, adjusted_checkout_hour - overtime_begin)
+
+                ot_by_hours = max(0.0, record.worked_hours - exp)
+                record.overtime_hours = round(max(ot_by_time, ot_by_hours), 2)
     
     @api.depends('employee_id', 'date')
     def _compute_leave_info(self):
@@ -310,6 +319,15 @@ class AttendanceRecord(models.Model):
                 record.expected_hours = base_hours / 2.0
             else:
                 record.expected_hours = base_hours
+
+    @api.depends('status', 'expected_hours')
+    def _compute_absent_hours(self):
+        """Compute absent hours for unexcused absence (default 8.0 hours per absent day)."""
+        for record in self:
+            if record.status == 'absent':
+                record.absent_hours = record.expected_hours if record.expected_hours > 0 else 8.0
+            else:
+                record.absent_hours = 0.0
 
     @api.depends('first_checkin', 'last_checkout', 'total_punches', 'date', 'leave_id', 'leave_state', 'is_half_day_leave', 'is_paid_leave', 'leave_period')
     def _compute_status(self):
